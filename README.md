@@ -8,4 +8,4 @@ Fish school model in julia where you can export data to a julia script for machi
 -   Pre-run of materials and modifiers for template model.
 -   Render settings and output
 
-![formula](https://render.githubusercontent.com/render/math?math=e^{i \pi} = -1)
+
