@@ -4,6 +4,7 @@ import bpy
 
 N_obj=10 #number of objects
 dim=3 #number of dimensions that the object s hould move in
+scale=10 # divides positions by scale such that fish are closer togheter
 
 #set true if you want to import an .obj file that is suppose to be copied
 importObject=False
@@ -16,7 +17,7 @@ obj_loc = '/home/jonas/Desktop/Salmon_texture.obj'
 #file path to csv that contains the locations of each object at each time frame.
 #each line contains a frame, first entry is a time stamp or somem other information.
 #then the next tree entries in that line are [x,y,z] positions 
-csv_loc='/home/jonas/Desktop/FileName.csv'  
+csv_loc='/home/jonas/Desktop/dataForVisualization.CSV'  
 
 #The objects that are important or copied will only be found if their name 
 #contains this name space, this is not case sensetive
@@ -85,11 +86,11 @@ with open(csv_loc, 'r', newline='') as csvfile:
         for i in range(N_obj):
             #if dimension equals 2 then set z=0
             if dim==2:
-                temp_pos=[fpos[i-1],fpos[i],0]
+                temp_pos=[fpos[i-1]/scale,fpos[i]/scale,0]
                 coordinates.append(temp_pos)
                        
             if dim==3:
-                temp_pos=[fpos[i-1],fpos[i],fpos[i+1]]
+                temp_pos=[fpos[i-1]/scale,fpos[i]/scale,fpos[i+1]/scale]
                 coordinates.append(temp_pos)
         
         #set frame
