@@ -3,11 +3,11 @@ using CSV
 using DataFrames
 using Random
 
-#imports CSV file, each line contains a target value of 0 or 1 followed by
+#Imports CSV file, each line contains a target value of 0 or 1 followed by
 #a feature vector
-data=CSV.File("dataforAanalysis.CSV",header=false)
+data=CSV.File("dataforAnalysis.CSV",header=false)
 
-#counts number of lines in the cvs, this is the number of feature vectors
+#Counts number of lines in the cvs, this is the number of feature vectors
 function countcsvlines(data)
     #counter
     n = 0
@@ -18,7 +18,7 @@ function countcsvlines(data)
     return n
 end
 
-#gets the number of rows which is the number of features in each feature vector
+#Gets the number of rows which is the number of features in each feature vector
 #-1
 function getNrFeatures(data)
     #counter
@@ -30,7 +30,7 @@ function getNrFeatures(data)
     return n-1
 end
 
-#normalize data such that all elements are on [0,1]
+#Normalize data such that all elements are on [0,1]
 function minMaxNormalization(data)
     #find max
     max=maximum(data)
@@ -82,7 +82,7 @@ function getEvaluation(model,test_data)
 
 end
 
-#calculate accuracy based on output from evaluation function
+#Calculate accuracy based on output from evaluation function
 function getAccuracy(eval)
     return (eval[1]+eval[2])/(sum(eval))
 end
@@ -99,7 +99,7 @@ function splitDataTraningAndTest(train_percentage,data)
 end
 
 
-#main script
+#Main script
 let
     #percentage of data that is for traning, the rest is for testing
     train_percentage=0.9
@@ -108,13 +108,13 @@ let
     #get number of features in each vector
     N_feat=getNrFeatures(data)
 
-    #initialization of matrix to hold feature vectors
+    #Initialization of matrix to hold feature vectors
     Xs=zeros(N_vec,N_feat)
     #initialization of vector to hold target values
     Ys=zeros(N_vec,1)
     #counter
     i=1
-    #convert CSV into feature vectors and targets
+    #Convert CSV into feature vectors and targets
     #for each row
     for row in eachrow(data)
         temp_row=[]
@@ -129,16 +129,16 @@ let
         #increment
         i+=1
     end
-    #normalize data
+    #Normalize data
     Xs=minMaxNormalization(Xs)
-    #convert to Float32 to save memmory
+    #Convert to Float32 to save memmory
     Xs=convert(Array{Float32},Xs)
     Ys=convert(Array{Float32},Ys)
 
-    #create nerual net model, example: Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
+    #Create nerual net model, example: Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
     #has N feature inputs, with two length 20 hidden nodes and one output
     model=Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
-    #create our loss function, mse = mean square error
+    #Create our loss function, mse = mean square error
     L(x,y)=Flux.Losses.mse(model(x), y)
     #model parameters
     par=Flux.params(model)
@@ -147,18 +147,18 @@ let
     #our optimizer
     #opt = ADAM()
 
-    #combine feature vector and target into a vector of touples
+    #Combine feature vector and target into a vector of touples
     D=Vector(undef,N_vec)
     for i in 1:N_vec
         dat=(Xs[i,:],Ys[i])
         D[i,:]=[dat]
     end
-    #shoufle data randomly
+    #Shoufle data randomly
     shuffle!(D)
 
     D_test,D_train=splitDataTraningAndTest(train_percentage,D)
 
-    #number of traning steps
+    #Number of traning steps
     echos=500
     for e in 1:echos
         #train our model (update weights)

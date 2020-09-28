@@ -6,15 +6,15 @@ N_obj=10 #number of objects
 dim=3 #number of dimensions that the object s hould move in
 scale=10 # divides positions by scale such that fish are closer togheter
 
-#set true if you want to import an .obj file that is suppose to be copied
+#Set true if you want to import an .obj file that is suppose to be copied
 importObject=False
-#set true if you want to copy a object that is selected with cursour
+#Set true if you want to copy a object that is selected with cursour
 CopySelected=True
 
-#file path for import, the name of the imported object has to contain name_space
+#File path for import, the name of the imported object has to contain name_space
 obj_loc = '/home/jonas/Desktop/Salmon_texture.obj'
 
-#file path to csv that contains the locations of each object at each time frame.
+#File path to csv that contains the locations of each object at each time frame.
 #each line contains a frame, first entry is a time stamp or somem other information.
 #then the next tree entries in that line are [x,y,z] positions 
 csv_loc='/home/jonas/Desktop/dataForVisualization.CSV'  
@@ -24,9 +24,9 @@ csv_loc='/home/jonas/Desktop/dataForVisualization.CSV'
 name_space="salmon"
 
 
-#imports object 
+#Imports object 
 if importObject:
-    #import N_obj objects and put them in scene
+    #Import N_obj objects and put them in scene
     for i in range(N_obj):
         new_obj = bpy.ops.import_scene.obj(filepath=obj_loc)
         
@@ -36,10 +36,10 @@ if CopySelected:
     #The scene that our object will be placed in
     scn = bpy.context.scene.collection
     
-    #object that we are going to copy, this is selected on the gui by the user
+    #Object that we are going to copy, this is selected on the gui by the user
     src_obj = bpy.context.active_object
     
-    #for N-1 we copy our object, -1 since we have one from before
+    #For N-1 we copy our object, -1 since we have one from before
     for i in range (N_obj-1):
         new_obj = src_obj.copy()
         #change name such that the object can be found by it later
@@ -54,9 +54,9 @@ if CopySelected:
 
 
 
-#array hold the objects that we want to animate
+#Array hold the objects that we want to animate
 our_objects=[]
-#loop over all objects in scene
+#Loop over all objects in scene
 for ob in bpy.context.scene.objects:
     #checks if object has the right name not case sensetiv
     if name_space.lower() in ob.name.lower():
@@ -65,24 +65,24 @@ for ob in bpy.context.scene.objects:
 
 
 
-#frame number
+#Frame number
 frame_num=1
-#open csv 
+#Open csv 
 with open(csv_loc, 'r', newline='') as csvfile:
     #our file 
     current_file = csv.reader(csvfile, delimiter=',')
     
-    #for each line (row) in current file
+    #For each line (row) in current file
     for line in current_file:
         #f takes the time stamp first entry, then *pos contains all our positions 
         f, *pos = line
         
-        #convert positional values to floats
+        #Convert positional values to floats
         fpos = [float(p) for p in pos]
-        #initialize array to hold coordinates
+        #Initialize array to hold coordinates
         coordinates=[]
         
-        #for N_obj append positional values for each agent to the coordinate array
+        #For N_obj append positional values for each agent to the coordinate array
         for i in range(N_obj):
             #if dimension equals 2 then set z=0
             if dim==2:

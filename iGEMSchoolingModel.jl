@@ -18,7 +18,7 @@ using PyCall
 using CSV
 @pyimport matplotlib.animation as anim
 
-#all units are fish length
+#All units are fish length
 #returns a named touple of environment parameters
 function environmentParameters()
     Env_Para=(
@@ -31,7 +31,7 @@ function environmentParameters()
     return Env_Para
 end
 
-#returns a named touple of simulation parameters
+#Returns a named touple of simulation parameters
 function simulationParameters()
     Sim_Para=(
     N_Fish = 100, #number of fishes
@@ -46,7 +46,7 @@ function simulationParameters()
     return Sim_Para
 end
 
-#returns a named touple of fish parameters
+#Returns a named touple of fish parameters
 function fishParameters()
     Fish_Para=(
     R_attraction = 5*100, #radius of attraction
@@ -63,7 +63,7 @@ function fishParameters()
     return Fish_Para
 end
 
-#returns a named touple of sick paramters
+#Returns a named touple of sick paramters
 function sickParameters()
     Sick_Para=(
     #selfweights are different for certain individuals (sick ones)
@@ -74,7 +74,7 @@ function sickParameters()
     return Sick_Para
 end
 
-#returns named touple of visualisation paramters
+#Returns named touple of visualisation paramters
 function visualParamters()
     Vizual_Para=(
     #the number of frames for blender and scatter animation that will be saved
@@ -86,7 +86,7 @@ function visualParamters()
     )
     return Vizual_Para
 end
-#returns name touple of data analysis parameters
+#Returns name touple of data analysis parameters
 function dataAnalysisParameters()
     DataAnalaysis_Para=(
     N_measurements= 100, #number of measurements
@@ -108,7 +108,7 @@ function dataAnalysisParameters()
     avgPosition=true,
     )
 end
-#returns a singel scalar
+#Returns a singel scalar
 function avgPositionDimSum(vecOfPos)
     val=0  #temporary value
     #for all entries in vecOfPos add up the sum of all elements in that matrix
@@ -118,7 +118,7 @@ function avgPositionDimSum(vecOfPos)
     return val
 end
 
-#returns vector contaning a indexes of fishes between min and max distance
+#Returns vector contaning a indexes of fishes between min and max distance
 function indexInZone(minDist,maxDist,P,j)
         #calculate distance to all fishes
         dist=sqrt.(sum((P.-transpose(P[j,:])).^2,dims=2))
@@ -147,7 +147,7 @@ function attractDir(P,j,inAttZone,attWeight,Sim_Para)
 
 end
 
-#return vector which represents repulsion, pointing away from the fishes in the
+#Return vector which represents repulsion, pointing away from the fishes in the
 #repulsive zone
 function repulsDir(P,j,inRepZone,repWeight,Sim_Para)
     #initialization
@@ -164,7 +164,7 @@ function repulsDir(P,j,inRepZone,repWeight,Sim_Para)
 
 end
 
-#returns vector pointing in direction of orientation, the average between
+#Returns vector pointing in direction of orientation, the average between
 #self direction and the direction that those in orientation zone is moving
 #towards
 function orientDir(V,j,inOriZone,oriWeight,abs_v,Sim_Para)
@@ -197,7 +197,7 @@ function positionNoise(Env_Para,Sim_Para)
     return posNoise
 end
 
-#return a matrix which represents initial velocities, where each fish has
+#Return a matrix which represents initial velocities, where each fish has
 #velocity V[j,:]
 function initVelocity(Fish_Para,Sim_Para)
     #speed=rand(Normal(Fish_Para[:mean_v], Fish_Para[:var_v]), Sim_Para[:N_Fish],1)
@@ -208,39 +208,39 @@ function initVelocity(Fish_Para,Sim_Para)
     return V
 end
 
-#return a matrix of initial positions where each fish has a position P[j,:]
+#Return a matrix of initial positions where each fish has a position P[j,:]
 function initPosition(Env_Para,Sim_Para)
     P=(Env_Para[:R_Fish])*rand(Normal(0,1),Sim_Para[:N_Fish],Sim_Para[:dimension])
     return P
 end
 
-#return vector contaning initial self weights for all fish
+#Return vector contaning initial self weights for all fish
 function initSelfWeight(Fish_Para,Sim_Para)
     selfW=Fish_Para[:selfWeight]*ones(Sim_Para[:N_Fish],1)
     return selfW
 end
 
-#return vector contaning initial repulsion weights
+#Return vector contaning initial repulsion weights
 function initRepWeight(Fish_Para,Sim_Para)
     repWeight=Fish_Para[:repulseWeight]*ones(Sim_Para[:N_Fish],1)
     return repWeight
 end
 
-#return vector contaning initial orientation weights
+#Return vector contaning initial orientation weights
 function initOriWeight(Fish_Para,Sim_Para)
     oriWeight=Fish_Para[:orientationWeight]*ones(Sim_Para[:N_Fish],1)
     return oriWeight
 end
 
-#return vector contaning initial attraction weights
+#Return vector contaning initial attraction weights
 function initAttWeight(Fish_Para,Sim_Para)
     attWeight=Fish_Para[:attractWeight]*ones(Sim_Para[:N_Fish],1)
     return attWeight
 end
 
-#return matrix with all velocities after keeping them within limits
+#Return matrix with all velocities after keeping them within limits
 function velAdjustedForLimit(Fish_Para,Sim_Para,V)
-    #gives a boolean vector for velocities in V whose norm is greater than
+    #Gives a boolean vector for velocities in V whose norm is greater than
     #the limit
     V_over=sqrt.(sum(V.^2,dims=2)) .> Fish_Para[:max_v]
 
@@ -269,7 +269,7 @@ function velAdjustedForLimit(Fish_Para,Sim_Para,V)
     return V
 end
 
-#return position matrix and velocity matrix of all fish after making sure
+#Return position matrix and velocity matrix of all fish after making sure
 #that they are within boundry
 function keepWithinBoundry(Env_Para,P,V)
     #check if fishes are outside of boundry for any dimension
@@ -290,7 +290,7 @@ function keepWithinBoundry(Env_Para,P,V)
     return P,V
 end
 
-#given a vector wher each entry is a matrix create a animation in mp4 format
+#Given a vector wher each entry is a matrix create a animation in mp4 format
 #and save that animation, each frame is a set of points defined by the matrices
 function animScatterFromVec(Env_Para,Data,Vizual_Para)
 
@@ -360,7 +360,7 @@ function updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,attW
     return V
 
 end
-#change the self weight of N_selfweightOff individuals by an amplitude
+#Change the self weight of N_selfweightOff individuals by an amplitude
 #selfOffAm times a random number, returns vector of self weights
 function selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
     #find random individuals
@@ -370,11 +370,11 @@ function selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
     return selfW
 end
 
-#sightly change self weight of all individuals
+#Sightly change self weight of all individuals
 function ShiftSelfWeightAll(Sick_Para,selfW,Sim_Para)
 end
 
-#saves position data in csv file
+#Saves position data in csv file
 function generateCSVFromData(time_stamps,P,Vizual_Para,Sim_Para,Env_Para)
     #initialize matrix that will hold all data, each row's first entry is a
     #time stamp followed by positions [x,y,z] or [x,y] for each fish
@@ -393,7 +393,7 @@ function generateCSVFromData(time_stamps,P,Vizual_Para,Sim_Para,Env_Para)
     CSV.write("dataForVisualization.CSV",  DataFrame(M), writeheader=false)
 end
 
-#appends a vector as a row to a csv where first entry is class and the rest
+#Appends a vector as a row to a csv where first entry is class and the rest
 #features
 function appendVectorToCsv(vec,DataAnalysis_Para)
     #temporary vector
@@ -422,10 +422,10 @@ function appendVectorToCsv(vec,DataAnalysis_Para)
     #transpose
     data=transpose(data)
     #append vector to CSV file
-    CSV.write("dataforAanalysis.CSV", DataFrame(data), header = false, append = true)
+    CSV.write("dataforAnalysis.CSV", DataFrame(data), header = false, append = true)
 end
 
-#returns the average position as an array [x,y] or [x,y,z] depending on
+#Seturns the average position as an array [x,y] or [x,y,z] depending on
 #dimension
 function avgPos(Pos)
     #calculate average position
@@ -433,7 +433,7 @@ function avgPos(Pos)
     return avgP
 end
 
-#returns an array of indicies that we want samples when we want N_samples
+#Seturns an array of indicies that we want samples when we want N_samples
 #samples from a set with N_set entries
 function getIndicesToSample(N_set,N_samples)
     #initialization
@@ -449,7 +449,7 @@ function getIndicesToSample(N_set,N_samples)
     return ind
 end
 
-#main
+#Main
 let
     #enviorment Parameters
     Env_Para=environmentParameters()
@@ -477,7 +477,7 @@ let
     #vector for ploting data gathered on each instance
     Plot_data=Vector(undef,Sim_Para[:N_instances])
 
-    #run simulation with different instance of parameters
+    #Run simulation with different instance of parameters
     for _inst_ in 1:Sim_Para[:N_instances]
         #marix of initial poisitions
         P=initPosition(Env_Para,Sim_Para)
@@ -502,7 +502,7 @@ let
         avgPosDimSumData=0
 
         vecForDatanalysis=Vector(undef,Vizual_Para[:N_frames])
-        #run simulation N_runs number of times to generate averages
+        #Run simulation N_runs number of times to generate averages
         for run_k in 1:Sim_Para[:N_runs]
 
             #sample indicies for visualisation
@@ -515,7 +515,7 @@ let
             count_ana_ind=1
 
 
-            #run main code N_steps times
+            #Run main code N_steps times
             for i in 1:Sim_Para[:N_steps]
                 #add velocity noise
                 V=V+velocityNoise(Env_Para,Sim_Para)
@@ -537,7 +537,7 @@ let
                 P=P+Sim_Para[:dt]*V #update position
 
 
-                #if we are the right iteration calculate and save
+                #If we are the right iteration calculate and save
                 #visualization data
                 if count_vis_ind<=Vizual_Para[:N_frames]
                     if Int(vis_indicies[count_vis_ind])==Int(i)
@@ -572,7 +572,7 @@ let
 
 
             end
-            #saves time stamps and posdata_anim to a csv
+            #Saves time stamps and posdata_anim to a csv
             if (run_k==1) & (_inst_==1)
                 if Vizual_Para[:save_pos]
                     generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
@@ -580,7 +580,7 @@ let
             end
 
         end
-        #appends vecForDatanalysis to csv
+        #Appends vecForDatanalysis to csv
         if DataAnalysis_Para[:appendToDataForAnalysis]
             appendVectorToCsv(vecForDatanalysis,DataAnalysis_Para)
         end
@@ -590,7 +590,7 @@ let
 
 
     if Vizual_Para[:scatter_anim]
-        #creates an animation and saves it
+        #Creates an animation and saves it
         animScatterFromVec(Env_Para,Posdata_anim,Vizual_Para)
     end
 
