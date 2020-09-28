@@ -87,11 +87,22 @@ function getAccuracy(eval)
     return (eval[1]+eval[2])/(sum(eval))
 end
 
-
+#Splits data as close as possible to the train_percentage then returns an array
+#of the form [data_train, data_test]
+function splitDataTraningAndTest(train_percentage,data)
+    #find cutoff index
+    cutoff=Int(ceil(length(data)*train_percentage))
+    #split data
+    D_test=data[1:cutoff]
+    D_train=data[cutoff+1:end]
+    return D_train,D_test
+end
 
 
 #main script
 let
+    #percentage of data that is for traning, the rest is for testing
+    train_percentage=0.9
     #get number of feature vectors
     N_vec=countcsvlines(data)
     #get number of features in each vector
@@ -144,10 +155,8 @@ let
     end
     #shoufle data randomly
     shuffle!(D)
-    #keep 90% of data for traning and 10% for testing
-    ind=Int(N_vec*0.9)
-    D_train=D[1:ind]
-    D_test=D[ind+1:N_vec]
+
+    D_test,D_train=splitDataTraningAndTest(train_percentage,D)
 
     #number of traning steps
     echos=500

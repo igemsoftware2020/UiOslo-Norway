@@ -41,7 +41,7 @@ function simulationParameters()
     N_runs=1, #number of simulation runs, can be used to average measurements
     #number of times code is ran, this can be used to change variables for
     #each instance to generate statistic.
-    N_instances=1
+    N_instances=100
     )
     return Sim_Para
 end
@@ -67,7 +67,7 @@ end
 function sickParameters()
     Sick_Para=(
     #selfweights are different for certain individuals (sick ones)
-    selfWeightOffIndivually=true,
+    selfWeightOffIndivually=false,
     N_selfweightOff=100, #the number of fishes for which selfweight is ofset
     selfOffAm=10, #amplitude that the self weight is multiplied by
     )
@@ -398,20 +398,25 @@ end
 function appendVectorToCsv(vec,DataAnalysis_Para)
     #temporary vector
     temp_vec=[]
-    #add vec to temp_vec such that [[a,b],[c,d]] becomes [a,b,c,d]
-    for i in length(vec)
-        append!(temp_vec,vec[i][1])
-        append!(temp_vec,vec[i][2])
-        if length(vec[1])>2
-            append!(temp_vec,vec[i][3])
+    count=0
+    for entry in transpose(vec)
+        append!(temp_vec,entry[1])
+        if length(entry)>1
+            append!(temp_vec,entry[2])
+            count+=1
         end
+        if length(entry)>2
+            append!(temp_vec,entry[3])
+            count+=1
+        end
+        count+=1
     end
     #initialize vector
     data=zeros(length(temp_vec)+1,1)
     #set class as first entry
     data[1]=DataAnalysis_Para[:class]
     #put vector in data
-    for i in length(temp_vec)
+    for i in 1:count
         data[i+1]=temp_vec[i]
     end
     #transpose
@@ -464,14 +469,6 @@ let
     #Parameters for data analysis
     DataAnalysis_Para=dataAnalysisParameters()
 
-    #sample indicies for visualisation
-    vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])
-    #counter to know which index of vis_indicies that we are looking for
-    count_vis_ind=1
-    #sample indicies for datanalysis
-    ana_indicies=getIndicesToSample(Sim_Para[:N_steps],DataAnalysis_Para[:N_measurements])
-    #counter to know which index of ana_indicies that we are looking for
-    count_ana_ind=1
 
     #vector to store position data for visualisation
     Posdata_anim=Vector(undef,Vizual_Para[:N_frames])
@@ -499,12 +496,24 @@ let
         if Sick_Para[:selfWeightOffIndivually]
             selfW=selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
         end
-        #temporary value to hold simple measures
-        temp_val=Vector(undef,1)
+        #variable to hold avgPos measure
+        avgPosData=zeros(1,Sim_Para[:dimension])
+        #variable to hold avgPositionDimSum measure
+        avgPosDimSumData=0
 
         vecForDatanalysis=Vector(undef,Vizual_Para[:N_frames])
         #run simulation N_runs number of times to generate averages
         for run_k in 1:Sim_Para[:N_runs]
+
+            #sample indicies for visualisation
+            vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])
+            #counter to know which index of vis_indicies that we are looking for
+            count_vis_ind=1
+            #sample indicies for datanalysis
+            ana_indicies=getIndicesToSample(Sim_Para[:N_steps],DataAnalysis_Para[:N_measurements])
+            #counter to know which index of ana_indicies that we are looking for
+            count_ana_ind=1
+
 
             #run main code N_steps times
             for i in 1:Sim_Para[:N_steps]
@@ -530,48 +539,44 @@ let
 
                 #if we are the right iteration calculate and save
                 #visualization data
-                if Int(vis_indicies[count_vis_ind])==Int(i)
-                    #save for first run
-                    if run_k==1
-                        time_stamps[count_vis_ind]=Sim_Para[:dt]*i
-                        Posdata_anim[count_vis_ind]=P
+                if count_vis_ind<=Vizual_Para[:N_frames]
+                    if Int(vis_indicies[count_vis_ind])==Int(i)
+                        #save for first run
+                        if run_k==1
+                            time_stamps[count_vis_ind]=Sim_Para[:dt]*i
+                            Posdata_anim[count_vis_ind]=P
+                        end
+                        count_vis_ind+=1
                     end
-                    count_vis_ind+=1
                 end
 
 
                 #If we are the right iteration calculate and save measures
-                if Int(ana_indicies[count_ana_ind])==Int(i)
-                    #if we use measure avgPositionDimSum
-                    if DataAnalysis_Para[:avgPositionDimensionSum]
-                        if isdefined(temp_val,1)
-                            temp_val=temp_val+avgPositionDimSum(P)
-                        else
-                            #if not defined initialize to scalar
-                            temp_val=0
+                if count_ana_ind<=DataAnalysis_Para[:N_measurements]
+                    if Int(ana_indicies[count_ana_ind])==Int(i)
+                        #if we use measure avgPositionDimSum
+                        if DataAnalysis_Para[:avgPositionDimensionSum]
+                            avgPosDimSumData=avgPosDimSumData+avgPositionDimSum(P)
+                            vecForDatanalysis[count_ana_ind]=avgPosDimSumData
                         end
-                    end
-                    #if we use measure avgPosition
-                    if DataAnalysis_Para[:avgPosition]
-                        if isdefined(temp_val,1)
-                            temp_val=temp_val+avgPos(P)
-                        else
-                            #if not defined initialize to array
-                            temp_val=zeros(1,Sim_Para[:dimension])
+                        #if we use measure avgPosition
+                        if DataAnalysis_Para[:avgPosition]
+                            avgPosData=avgPosData+avgPos(P)
+                            #append measure to vec for analysis
+                            vecForDatanalysis[count_ana_ind]=avgPosData
                         end
-
+                        count_ana_ind+=1
                     end
-                    #append measure to vec for analysis
-                    vecForDatanalysis[count_ana_ind]=temp_val
 
-                    count_ana_ind+=1
                 end
 
 
             end
             #saves time stamps and posdata_anim to a csv
-            if Vizual_Para[:save_pos]
-                generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
+            if (run_k==1) & (_inst_==1)
+                if Vizual_Para[:save_pos]
+                    generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
+                end
             end
 
         end
