@@ -5,7 +5,7 @@ using Random
 
 #imports CSV file, each line contains a target value of 0 or 1 followed by
 #a feature vector
-data=CSV.File("traningData100frames.CSV",header=false)
+data=CSV.File("dataforAanalysis.CSV",header=false)
 
 #counts number of lines in the cvs, this is the number of feature vectors
 function countcsvlines(data)
