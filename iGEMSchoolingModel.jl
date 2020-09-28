@@ -11,9 +11,7 @@
 #Pkg.add("CSV")
 #using packages
 using Random, Distributions
-#using Plots
 using DataFrames
-using Printf
 using LinearAlgebra
 using PyPlot
 using PyCall
@@ -25,7 +23,8 @@ using CSV
 function environmentParameters()
     Env_Para=(
     L=1000,  #length of each side of cubic tank
-    R_Fish=100, #radius from 0 where most fish are located
+    R_Fish=100, #Multiplies initial normal distribution of fish positions to
+    #spread them out
     ampVNoise = 0.3, # amplitude of velocity noise
     ampPosNoise=1, #amplitude of position noise
     )
@@ -39,24 +38,23 @@ function simulationParameters()
     dimension=2, #number of dimensions
     dt = 0.25, # time step
     N_steps=1000, #number of time steps
-    N_runs=1, #number of simulation runs
+    N_runs=1, #number of simulation runs, can be used to average measurements
     #number of times code is ran, this can be used to change variables for
-    #each instance to generate statistic
-    N_instances=300
+    #each instance to generate statistic.
+    N_instances=1
     )
     return Sim_Para
 end
 
 #returns a named touple of fish parameters
 function fishParameters()
-    Env_Para=environmentParameters()
     Fish_Para=(
     R_attraction = 5*100, #radius of attraction
     R_orientation = 5*20, #radius of orientation
     R_repulsion = 5*5, # radius of repulsion
     attractWeight=1.4, #scalling for attraction
     repulseWeight=0.7, #scalling for repulsion
-    selfWeight=10, # force for current direction
+    selfWeight=1, # force for current direction
     orientationWeight=2, #scalling for orientation
     mean_v=1, # fish lengths per second
     max_v=3, # max velocity 3 times mean_v
@@ -69,25 +67,46 @@ end
 function sickParameters()
     Sick_Para=(
     #selfweights are different for certain individuals (sick ones)
-    selfWeightOffIndivually=false,
+    selfWeightOffIndivually=true,
     N_selfweightOff=100, #the number of fishes for which selfweight is ofset
-    selfOffAm=1, #multiply by 10
+    selfOffAm=10, #amplitude that the self weight is multiplied by
     )
     return Sick_Para
 end
 
-#returns named touple of vizualisation paramters
-function vizualParamters()
+#returns named touple of visualisation paramters
+function visualParamters()
     Vizual_Para=(
-    N_frames=500,  #number of frames needs to be even
-    anim=false, # create an animation
+    #the number of frames for blender and scatter animation that will be saved
+    N_frames=100,  #number of frames needs to be even
+    #saves N_frames positions in dataForVisualization, only saves first run
+    save_pos=true,
+    # create an scatter animation
+    scatter_anim=false,
+    )
+    return Vizual_Para
+end
+#returns name touple of data analysis parameters
+function dataAnalysisParameters()
+    DataAnalaysis_Para=(
+    N_measurements= 100, #number of measurements
+
+    #if this is set to true then for each instance a measure will be appended
+    #to CSV dataforAanalysis where the first entry is class
+    appendToDataForAnalysis=true,
+    #set your target value or class here, it will be assigned to all
+    #saved data for analysis
+    class=0,
+
+    #different measurements only use one at a time
+
     #uses a measure that gives the average position of each time step, then
     #takes the sum of those positions and all their dimensions over all time
     #and returns that value
-    avgPositionDimensionSum=true,
-    plotmeasure=true,
+    avgPositionDimensionSum=false,
+    #uses measure that takes the average position
+    avgPosition=true,
     )
-    return Vizual_Para
 end
 #returns a singel scalar
 function avgPositionDimSum(vecOfPos)
@@ -355,45 +374,78 @@ end
 function ShiftSelfWeightAll(Sick_Para,selfW,Sim_Para)
 end
 
-#creates a figure with line plot and returns that figure
-function linePlotFromVector(vec)
-    fig=plt.figure()
-    plot(1:size(vec)[1],vec)
-    savefig("test")
-end
-
-#saves position data in csv file.
-function generateCSVFromData(time_stamps,data,Vizual_Para,Sim_Para,Env_Para)
+#saves position data in csv file
+function generateCSVFromData(time_stamps,P,Vizual_Para,Sim_Para,Env_Para)
+    #initialize matrix that will hold all data, each row's first entry is a
+    #time stamp followed by positions [x,y,z] or [x,y] for each fish
     M=zeros(Vizual_Para[:N_frames],1+Sim_Para[:dimension]*Sim_Para[:N_Fish])
+    #put time stamps in first column
     #M[:,1]=time_stamps
-    M[:,1]=zeros(Vizual_Para[:N_frames])
+    M[:,1]=ones(Vizual_Para[:N_frames],1)
+    #for number of frames
     for i in 1:Vizual_Para[:N_frames]
-        M[i,2:(1+Sim_Para[:dimension]*Sim_Para[:N_Fish])]=reshape(transpose(data[i]),1,length(data[i]))./(Env_Para[:L]/100)
+        #reshape position matrix s.t that the matrix is on the form specified
+        P_reshaped=reshape(transpose(P[i]),1,length(P[i]))
+        #add positions to M
+        M[i,2:(1+Sim_Para[:dimension]*Sim_Para[:N_Fish])]=P_reshaped
     end
-    CSV.write("FileName.csv",  DataFrame(M), writeheader=false)
+    #create csv that contains M
+    CSV.write("dataForVisualization.CSV",  DataFrame(M), writeheader=false)
 end
 
-function appendVectorToCsv(vec)
-
-    class=0 #1 is healthy and 0 is sick
-    data=zeros(size(vec)[1]+1,1)
-    data[1]=class
-
-    for i in 1:size(vec)[1]
-        data[i+1]=vec[i]
+#appends a vector as a row to a csv where first entry is class and the rest
+#features
+function appendVectorToCsv(vec,DataAnalysis_Para)
+    #temporary vector
+    temp_vec=[]
+    #add vec to temp_vec such that [[a,b],[c,d]] becomes [a,b,c,d]
+    for i in length(vec)
+        append!(temp_vec,vec[i][1])
+        append!(temp_vec,vec[i][2])
+        if length(vec[1])>2
+            append!(temp_vec,vec[i][3])
+        end
     end
-
+    #initialize vector
+    data=zeros(length(temp_vec)+1,1)
+    #set class as first entry
+    data[1]=DataAnalysis_Para[:class]
+    #put vector in data
+    for i in length(temp_vec)
+        data[i+1]=temp_vec[i]
+    end
+    #transpose
     data=transpose(data)
-
-    CSV.write("traningData.CSV", DataFrame(data), header = false, append = true)
-
+    #append vector to CSV file
+    CSV.write("dataforAanalysis.CSV", DataFrame(data), header = false, append = true)
 end
 
+#returns the average position as an array [x,y] or [x,y,z] depending on
+#dimension
+function avgPos(Pos)
+    #calculate average position
+    avgP=sum(Pos,dims=1)/size(Pos)[1]
+    return avgP
+end
+
+#returns an array of indicies that we want samples when we want N_samples
+#samples from a set with N_set entries
+function getIndicesToSample(N_set,N_samples)
+    #initialization
+    ind=[]
+    for i in 1:N_set
+        #next index we want to sample
+        next_ind=Int(ceil(i*(N_set/N_samples)))
+        #if that in index is in the set then append to array
+        if next_ind<=N_set
+            append!(ind,next_ind)
+        end
+    end
+    return ind
+end
 
 #main
 let
-
-
     #enviorment Parameters
     Env_Para=environmentParameters()
 
@@ -407,11 +459,21 @@ let
     Sick_Para=sickParameters()
 
     #Parameters for ploting and animation
-    Vizual_Para=vizualParamters()
+    Vizual_Para=visualParamters()
 
+    #Parameters for data analysis
+    DataAnalysis_Para=dataAnalysisParameters()
 
+    #sample indicies for visualisation
+    vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])
+    #counter to know which index of vis_indicies that we are looking for
+    count_vis_ind=1
+    #sample indicies for datanalysis
+    ana_indicies=getIndicesToSample(Sim_Para[:N_steps],DataAnalysis_Para[:N_measurements])
+    #counter to know which index of ana_indicies that we are looking for
+    count_ana_ind=1
 
-    #vector to store position data for vizualisation
+    #vector to store position data for visualisation
     Posdata_anim=Vector(undef,Vizual_Para[:N_frames])
     #vector to store time stamps
     time_stamps=Vector(undef,Vizual_Para[:N_frames])
@@ -433,14 +495,14 @@ let
         oriWeight=initOriWeight(Fish_Para,Sim_Para)
         #vector of attraction weights
         attWeight=initAttWeight(Fish_Para,Sim_Para)
-        k=1
         #change self weight of some individuals if set true
         if Sick_Para[:selfWeightOffIndivually]
             selfW=selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
         end
         #temporary value to hold simple measures
-        temp_val=0
-        sickVec=Vector(undef,Vizual_Para[:N_frames])
+        temp_val=Vector(undef,1)
+
+        vecForDatanalysis=Vector(undef,Vizual_Para[:N_frames])
         #run simulation N_runs number of times to generate averages
         for run_k in 1:Sim_Para[:N_runs]
 
@@ -465,39 +527,64 @@ let
 
                 P=P+Sim_Para[:dt]*V #update position
 
-                #store position data for animation
 
-                if i%(Sim_Para[:N_steps]/Vizual_Para[:N_frames])==0
-                    sickVec[Int(i/(Sim_Para[:N_steps]/Vizual_Para[:N_frames]))]=avgPositionDimSum(P)
-                    k=k+1
-                    time_stamps[Int(i/(Sim_Para[:N_steps]/Vizual_Para[:N_frames]))]=Sim_Para[:dt]*i
-                    Posdata_anim[Int(i/(Sim_Para[:N_steps]/Vizual_Para[:N_frames]))]=P
-
+                #if we are the right iteration calculate and save
+                #visualization data
+                if Int(vis_indicies[count_vis_ind])==Int(i)
+                    #save for first run
+                    if run_k==1
+                        time_stamps[count_vis_ind]=Sim_Para[:dt]*i
+                        Posdata_anim[count_vis_ind]=P
+                    end
+                    count_vis_ind+=1
                 end
 
 
-                if Vizual_Para[:avgPositionDimensionSum]
-                    temp_val=temp_val+avgPositionDimSum(P)
+                #If we are the right iteration calculate and save measures
+                if Int(ana_indicies[count_ana_ind])==Int(i)
+                    #if we use measure avgPositionDimSum
+                    if DataAnalysis_Para[:avgPositionDimensionSum]
+                        if isdefined(temp_val,1)
+                            temp_val=temp_val+avgPositionDimSum(P)
+                        else
+                            #if not defined initialize to scalar
+                            temp_val=0
+                        end
+                    end
+                    #if we use measure avgPosition
+                    if DataAnalysis_Para[:avgPosition]
+                        if isdefined(temp_val,1)
+                            temp_val=temp_val+avgPos(P)
+                        else
+                            #if not defined initialize to array
+                            temp_val=zeros(1,Sim_Para[:dimension])
+                        end
+
+                    end
+                    #append measure to vec for analysis
+                    vecForDatanalysis[count_ana_ind]=temp_val
+
+                    count_ana_ind+=1
                 end
 
 
             end
-            generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
+            #saves time stamps and posdata_anim to a csv
+            if Vizual_Para[:save_pos]
+                generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
+            end
 
         end
-        appendVectorToCsv(sickVec)
-        #average temporary value over number of runs
-        temp_val=temp_val/Sim_Para[:N_runs]
-        #put temporary value in vector for ploting
-        Plot_data[_inst_]=temp_val
+        #appends vecForDatanalysis to csv
+        if DataAnalysis_Para[:appendToDataForAnalysis]
+            appendVectorToCsv(vecForDatanalysis,DataAnalysis_Para)
+        end
+
+
     end
 
 
-    fig=plt.figure()
-    plot(1:size(Plot_data)[1],Plot_data)
-    savefig("test")
-
-    if Vizual_Para[:anim]
+    if Vizual_Para[:scatter_anim]
         #creates an animation and saves it
         animScatterFromVec(Env_Para,Posdata_anim,Vizual_Para)
     end
