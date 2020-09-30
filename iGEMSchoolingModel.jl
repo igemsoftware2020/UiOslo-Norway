@@ -41,7 +41,7 @@ function simulationParameters()
     N_runs=1, #number of simulation runs, can be used to average measurements
     #number of times code is ran, this can be used to change variables for
     #each instance to generate statistic.
-    N_instances=100
+    N_instances=1
     )
     return Sim_Para
 end
@@ -80,9 +80,9 @@ function visualParamters()
     #the number of frames for blender and scatter animation that will be saved
     N_frames=100,  #number of frames needs to be even
     #saves N_frames positions in dataForVisualization, only saves first run
-    save_pos=true,
+    save_pos=false,
     # create an scatter animation
-    scatter_anim=false,
+    scatter_anim=true,
     )
     return Vizual_Para
 end
@@ -93,7 +93,7 @@ function dataAnalysisParameters()
 
     #if this is set to true then for each instance a measure will be appended
     #to CSV dataforAanalysis where the first entry is class
-    appendToDataForAnalysis=true,
+    appendToDataForAnalysis=false,
     #set your target value or class here, it will be assigned to all
     #saved data for analysis
     class=0,
@@ -501,7 +501,7 @@ let
         #variable to hold avgPositionDimSum measure
         avgPosDimSumData=0
 
-        vecForDatanalysis=Vector(undef,Vizual_Para[:N_frames])
+        vecForDatanalysis=Vector(undef,DataAnalysis_Para[:N_measurements])
         #Run simulation N_runs number of times to generate averages
         for run_k in 1:Sim_Para[:N_runs]
 
