@@ -7,7 +7,6 @@ using PyPlot
 using PyCall
 using CSV
 #@pyimport matplotlib.animation as anim
-#anim=pyimport("matplotlib.animation")
 
 #returns a named touple of environment parameters
 function environmentParameters()
@@ -70,9 +69,9 @@ function visualParamters()
     #the number of frames for blender and scatter animation that will be saved
     N_frames=100,  #number of frames needs to be even
     #saves N_frames positions in dataForVisualization, only saves first run
-    save_pos=true,
+    save_pos=false,
     # create an scatter animation
-    scatter_anim=false,
+    scatter_anim=true,
     )
     return Vizual_Para
 end
@@ -99,154 +98,6 @@ function dataAnalysisParameters()
     )
 end
 
-
-
-#Main
-let
-    #enviorment Parameters
-    Env_Para=environmentParameters()
-
-    #Simulation parameters
-    Sim_Para=simulationParameters()
-
-    #Fish parameters
-    Fish_Para=fishParameters()
-
-    #parameters for sickness, defines how sickness affects fish
-    Sick_Para=sickParameters()
-
-    #Parameters for ploting and animation
-    Vizual_Para=visualParamters()
-
-    #Parameters for data analysis
-    DataAnalysis_Para=dataAnalysisParameters()
-
-
-    #vector to store position data for visualisation
-    Posdata_anim=Vector(undef,Vizual_Para[:N_frames])
-    #vector to store time stamps
-    time_stamps=Vector(undef,Vizual_Para[:N_frames])
-    #vector for ploting data gathered on each instance
-    Plot_data=Vector(undef,Sim_Para[:N_instances])
-
-    #Run simulation with different instance of parameters
-    for _inst_ in 1:Sim_Para[:N_instances]
-        #marix of initial poisitions
-        P=initPosition(Env_Para,Sim_Para)
-        #matrix of initial velocities
-        V=initVelocity(Fish_Para,Sim_Para)
-
-        #vector of initial self weight
-        selfW=initSelfWeight(Fish_Para,Sim_Para)
-        #vector of repulsion weights
-        repWeight=initRepWeight(Fish_Para,Sim_Para)
-        #vector of orientation weights
-        oriWeight=initOriWeight(Fish_Para,Sim_Para)
-        #vector of attraction weights
-        attWeight=initAttWeight(Fish_Para,Sim_Para)
-        #change self weight of some individuals if set true
-        if Sick_Para[:selfWeightOffIndivually]
-            selfW=selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
-        end
-        #variable to hold avgPos measure
-        avgPosData=zeros(1,Sim_Para[:dimension])
-        #variable to hold avgPositionDimSum measure
-        avgPosDimSumData=0
-
-        vecForDatanalysis=Vector(undef,DataAnalysis_Para[:N_measurements])
-        #Run simulation N_runs number of times to generate averages
-        for run_k in 1:Sim_Para[:N_runs]
-
-            #sample indicies for visualisation
-            vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])
-            #counter to know which index of vis_indicies that we are looking for
-            count_vis_ind=1
-            #sample indicies for datanalysis
-            ana_indicies=getIndicesToSample(Sim_Para[:N_steps],DataAnalysis_Para[:N_measurements])
-            #counter to know which index of ana_indicies that we are looking for
-            count_ana_ind=1
-
-
-            #Run main code N_steps times
-            for i in 1:Sim_Para[:N_steps]
-                #add velocity noise
-                V=V+velocityNoise(Env_Para,Sim_Para)
-                #add position noise
-                P=P+positionNoise(Env_Para,Sim_Para)
-                #keep velocity under maximum
-                V=velAdjustedForLimit(Fish_Para,Sim_Para,V)
-
-                #for each fish
-                for j in 1:Sim_Para[:N_Fish]
-                    #update direction
-                    V=updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,attWeight)
-
-                end
-
-                #Keep fishes within boundry
-                P,V=keepWithinBoundry(Env_Para,P,V)
-
-                P=P+Sim_Para[:dt]*V #update position
-
-
-                #If we are the right iteration calculate and save
-                #visualization data
-                if count_vis_ind<=Vizual_Para[:N_frames]
-                    if Int(vis_indicies[count_vis_ind])==Int(i)
-                        #save for first run
-                        if run_k==1
-                            time_stamps[count_vis_ind]=Sim_Para[:dt]*i
-                            Posdata_anim[count_vis_ind]=P
-                        end
-                        count_vis_ind+=1
-                    end
-                end
-
-
-                #If we are the right iteration calculate and save measures
-                if count_ana_ind<=DataAnalysis_Para[:N_measurements]
-                    if Int(ana_indicies[count_ana_ind])==Int(i)
-                        #if we use measure avgPositionDimSum
-                        if DataAnalysis_Para[:avgPositionDimensionSum]
-                            avgPosDimSumData=avgPosDimSumData+avgPositionDimSum(P)
-                            vecForDatanalysis[count_ana_ind]=avgPosDimSumData
-                        end
-                        #if we use measure avgPosition
-                        if DataAnalysis_Para[:avgPosition]
-                            avgPosData=avgPosData+avgPos(P)
-                            #append measure to vec for analysis
-                            vecForDatanalysis[count_ana_ind]=avgPosData
-                        end
-                        count_ana_ind+=1
-                    end
-
-                end
-
-
-            end
-            #Saves time stamps and posdata_anim to a csv
-            if (run_k==1) & (_inst_==1)
-                if Vizual_Para[:save_pos]
-                    generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
-                end
-            end
-
-        end
-        #Appends vecForDatanalysis to csv
-        if DataAnalysis_Para[:appendToDataForAnalysis]
-            appendVectorToCsv(vecForDatanalysis,DataAnalysis_Para)
-        end
-
-
-    end
-
-
-    if Vizual_Para[:scatter_anim]
-        #Creates an animation and saves it
-        animScatterFromVec(Env_Para,Posdata_anim,Vizual_Para)
-    end
-
-end
 
 #=
 Add the absolute value of all positional componenets togheter
@@ -563,7 +414,7 @@ Output:
 none, saves an .mp4 file
 =#
 function animScatterFromVec(Env_Para,Data,Vizual_Para)
-
+    anim=pyimport("matplotlib.animation")
     #function animation for updates
     function animUpdate(i)
         clf() #clear figure
@@ -767,4 +618,153 @@ function getIndicesToSample(N_set,N_samples)
         end
     end
     return ind
+end
+
+
+
+#Main
+let
+    #enviorment Parameters
+    Env_Para=environmentParameters()
+
+    #Simulation parameters
+    Sim_Para=simulationParameters()
+
+    #Fish parameters
+    Fish_Para=fishParameters()
+
+    #parameters for sickness, defines how sickness affects fish
+    Sick_Para=sickParameters()
+
+    #Parameters for ploting and animation
+    Vizual_Para=visualParamters()
+
+    #Parameters for data analysis
+    DataAnalysis_Para=dataAnalysisParameters()
+
+
+    #vector to store position data for visualisation
+    Posdata_anim=Vector(undef,Vizual_Para[:N_frames])
+    #vector to store time stamps
+    time_stamps=Vector(undef,Vizual_Para[:N_frames])
+    #vector for ploting data gathered on each instance
+    Plot_data=Vector(undef,Sim_Para[:N_instances])
+
+    #Run simulation with different instance of parameters
+    for _inst_ in 1:Sim_Para[:N_instances]
+        #marix of initial poisitions
+        P=initPosition(Env_Para,Sim_Para)
+        #matrix of initial velocities
+        V=initVelocity(Fish_Para,Sim_Para)
+
+        #vector of initial self weight
+        selfW=initSelfWeight(Fish_Para,Sim_Para)
+        #vector of repulsion weights
+        repWeight=initRepWeight(Fish_Para,Sim_Para)
+        #vector of orientation weights
+        oriWeight=initOriWeight(Fish_Para,Sim_Para)
+        #vector of attraction weights
+        attWeight=initAttWeight(Fish_Para,Sim_Para)
+        #change self weight of some individuals if set true
+        if Sick_Para[:selfWeightOffIndivually]
+            selfW=selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
+        end
+        #variable to hold avgPos measure
+        avgPosData=zeros(1,Sim_Para[:dimension])
+        #variable to hold avgPositionDimSum measure
+        avgPosDimSumData=0
+
+        vecForDatanalysis=Vector(undef,DataAnalysis_Para[:N_measurements])
+        #Run simulation N_runs number of times to generate averages
+        for run_k in 1:Sim_Para[:N_runs]
+
+            #sample indicies for visualisation
+            vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])
+            #counter to know which index of vis_indicies that we are looking for
+            count_vis_ind=1
+            #sample indicies for datanalysis
+            ana_indicies=getIndicesToSample(Sim_Para[:N_steps],DataAnalysis_Para[:N_measurements])
+            #counter to know which index of ana_indicies that we are looking for
+            count_ana_ind=1
+
+
+            #Run main code N_steps times
+            for i in 1:Sim_Para[:N_steps]
+                #add velocity noise
+                V=V+velocityNoise(Env_Para,Sim_Para)
+                #add position noise
+                P=P+positionNoise(Env_Para,Sim_Para)
+                #keep velocity under maximum
+                V=velAdjustedForLimit(Fish_Para,Sim_Para,V)
+
+                #for each fish
+                for j in 1:Sim_Para[:N_Fish]
+                    #update direction
+                    V=updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,attWeight)
+
+                end
+
+                #Keep fishes within boundry
+                P,V=keepWithinBoundry(Env_Para,P,V)
+
+                P=P+Sim_Para[:dt]*V #update position
+
+
+                #If we are the right iteration calculate and save
+                #visualization data
+                if count_vis_ind<=Vizual_Para[:N_frames]
+                    if Int(vis_indicies[count_vis_ind])==Int(i)
+                        #save for first run
+                        if run_k==1
+                            time_stamps[count_vis_ind]=Sim_Para[:dt]*i
+                            Posdata_anim[count_vis_ind]=P
+                        end
+                        count_vis_ind+=1
+                    end
+                end
+
+
+                #If we are the right iteration calculate and save measures
+                if count_ana_ind<=DataAnalysis_Para[:N_measurements]
+                    if Int(ana_indicies[count_ana_ind])==Int(i)
+                        #if we use measure avgPositionDimSum
+                        if DataAnalysis_Para[:avgPositionDimensionSum]
+                            avgPosDimSumData=avgPosDimSumData+avgPositionDimSum(P)
+                            vecForDatanalysis[count_ana_ind]=avgPosDimSumData
+                        end
+                        #if we use measure avgPosition
+                        if DataAnalysis_Para[:avgPosition]
+                            avgPosData=avgPosData+avgPos(P)
+                            #append measure to vec for analysis
+                            vecForDatanalysis[count_ana_ind]=avgPosData
+                        end
+                        count_ana_ind+=1
+                    end
+
+                end
+
+
+            end
+            #Saves time stamps and posdata_anim to a csv
+            if (run_k==1) & (_inst_==1)
+                if Vizual_Para[:save_pos]
+                    generateCSVFromData(time_stamps,Posdata_anim,Vizual_Para,Sim_Para,Env_Para)
+                end
+            end
+
+        end
+        #Appends vecForDatanalysis to csv
+        if DataAnalysis_Para[:appendToDataForAnalysis]
+            appendVectorToCsv(vecForDatanalysis,DataAnalysis_Para)
+        end
+
+
+    end
+
+
+    if Vizual_Para[:scatter_anim]
+        #Creates an animation and saves it
+        animScatterFromVec(Env_Para,Posdata_anim,Vizual_Para)
+    end
+
 end

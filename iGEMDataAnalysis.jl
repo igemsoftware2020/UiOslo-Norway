@@ -3,88 +3,6 @@ using CSV
 using DataFrames
 using Random
 
-#Main script
-let
-    #Imports CSV file, each line contains a target value of 0 or 1 followed by
-    #a feature vector
-    data=CSV.File("traningData100frames.CSV",header=false)
-
-    #percentage of data that is for traning, the rest is for testing
-    train_percentage=0.9
-    #get number of feature vectors
-    N_vec=countcsvlines(data)
-    #get number of features in each vector
-    N_feat=getNrFeatures(data)
-
-    #Initialization of matrix to hold feature vectors
-    Xs=zeros(N_vec,N_feat)
-    #initialization of vector to hold target values
-    Ys=zeros(N_vec,1)
-    #counter
-    i=1
-    #Convert CSV into feature vectors and targets
-    #for each row
-    for row in eachrow(data)
-        temp_row=[]
-        #add each element of that row to the temporary vector
-        for entry in row
-            append!(temp_row,entry)
-        end
-        #add all features to feature matrix s.t. each row is a feature
-        Xs[i,:]=temp_row[2:N_feat+1]
-        #add the target to the target vector
-        Ys[i]=Int(temp_row[1])
-        #increment
-        i+=1
-    end
-    #Normalize data
-    Xs=minMaxNormalization(Xs)
-    #Convert to Float32 to save memmory
-    Xs=convert(Array{Float32},Xs)
-    Ys=convert(Array{Float32},Ys)
-
-    #Create nerual net model, example: Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
-    #has N feature inputs, with two length 20 hidden nodes and one output
-    model=Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
-    #Create our loss function, mse = mean square error
-    L(x,y)=Flux.Losses.mse(model(x), y)
-    #model parameters
-    par=Flux.params(model)
-    #eta our learning rate
-    η=0.001
-    #The optimizer, decides how we change our parameters to minimize loss
-    #Use classic gradient decent
-    opt = Flux.Descent(η)
-
-    #Combine feature vector and target into a vector of touples
-    D=Vector(undef,N_vec)
-    for i in 1:N_vec
-        dat=(Xs[i,:],Ys[i])
-        D[i,:]=[dat]
-    end
-    #Shoufle data randomly
-    shuffle!(D)
-
-    D_test,D_train=splitDataTraningAndTest(train_percentage,D)
-
-    #Number of traning steps
-    echos=500
-    for e in 1:echos
-        #train our model (update weights)
-        Flux.train!(L,par,D_train,opt)
-    end
-    #evalute model
-    eval=getEvaluation(model,D_test)
-
-    #get accuracy given output from getEvaluation
-    acc=getAccuracy(eval)
-    #print results
-    println("Accuracy: ",acc,"  ","Positive: ",eval[1],"  ","Negative: ",
-    eval[2],"  ","False positive: ",eval[3],"  ","False negative: ",eval[4])
-
-end
-
-
 
 #Counts number of lines in the cvs, this is the number of feature vectors
 #Input: data, a CSV file
@@ -202,4 +120,85 @@ function splitDataTraningAndTest(train_percentage,data)
     D_test=data[1:cutoff]
     D_train=data[cutoff+1:end]
     return D_train,D_test
+end
+
+#Main script
+let
+    #Imports CSV file, each line contains a target value of 0 or 1 followed by
+    #a feature vector
+    data=CSV.File("traningData100frames.CSV",header=false)
+
+    #percentage of data that is for traning, the rest is for testing
+    train_percentage=0.9
+    #get number of feature vectors
+    N_vec=countcsvlines(data)
+    #get number of features in each vector
+    N_feat=getNrFeatures(data)
+
+    #Initialization of matrix to hold feature vectors
+    Xs=zeros(N_vec,N_feat)
+    #initialization of vector to hold target values
+    Ys=zeros(N_vec,1)
+    #counter
+    i=1
+    #Convert CSV into feature vectors and targets
+    #for each row
+    for row in eachrow(data)
+        temp_row=[]
+        #add each element of that row to the temporary vector
+        for entry in row
+            append!(temp_row,entry)
+        end
+        #add all features to feature matrix s.t. each row is a feature
+        Xs[i,:]=temp_row[2:N_feat+1]
+        #add the target to the target vector
+        Ys[i]=Int(temp_row[1])
+        #increment
+        i+=1
+    end
+    #Normalize data
+    Xs=minMaxNormalization(Xs)
+    #Convert to Float32 to save memmory
+    Xs=convert(Array{Float32},Xs)
+    Ys=convert(Array{Float32},Ys)
+
+    #Create nerual net model, example: Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
+    #has N feature inputs, with two length 20 hidden nodes and one output
+    model=Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
+    #Create our loss function, mse = mean square error
+    L(x,y)=Flux.Losses.mse(model(x), y)
+    #model parameters
+    par=Flux.params(model)
+    #eta our learning rate
+    η=0.001
+    #The optimizer, decides how we change our parameters to minimize loss
+    #Use classic gradient decent
+    opt = Flux.Descent(η)
+
+    #Combine feature vector and target into a vector of touples
+    D=Vector(undef,N_vec)
+    for i in 1:N_vec
+        dat=(Xs[i,:],Ys[i])
+        D[i,:]=[dat]
+    end
+    #Shoufle data randomly
+    shuffle!(D)
+
+    D_test,D_train=splitDataTraningAndTest(train_percentage,D)
+
+    #Number of traning steps
+    echos=500
+    for e in 1:echos
+        #train our model (update weights)
+        Flux.train!(L,par,D_train,opt)
+    end
+    #evalute model
+    eval=getEvaluation(model,D_test)
+
+    #get accuracy given output from getEvaluation
+    acc=getAccuracy(eval)
+    #print results
+    println("Accuracy: ",acc,"  ","Positive: ",eval[1],"  ","Negative: ",
+    eval[2],"  ","False positive: ",eval[3],"  ","False negative: ",eval[4])
+
 end
