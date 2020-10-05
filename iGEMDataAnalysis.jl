@@ -3,104 +3,12 @@ using CSV
 using DataFrames
 using Random
 
-#Imports CSV file, each line contains a target value of 0 or 1 followed by
-#a feature vector
-data=CSV.File("dataforAnalysis.CSV",header=false)
-
-#Counts number of lines in the cvs, this is the number of feature vectors
-function countcsvlines(data)
-    #counter
-    n = 0
-    #iterate over rows and count
-    for row in eachrow(data)
-        n += 1
-    end
-    return n
-end
-
-#Gets the number of rows which is the number of features in each feature vector
-#-1
-function getNrFeatures(data)
-    #counter
-    n=0
-    #iterate over the last row and count
-    for i in data[end]
-        n +=1
-    end
-    return n-1
-end
-
-#Normalize data such that all elements are on [0,1]
-function minMaxNormalization(data)
-    #find max
-    max=maximum(data)
-    #find min
-    min=minimum(data)
-    #scale all elements
-    data=(data.-min)/(max-min)
-    #return scaled data
-    return data
-end
-
-
-#Evaluates are model with the test data and returns
-#[positive,negative,false positive,false negative]
-function getEvaluation(model,test_data)
-    #variables to store results
-    FP=0
-    FN=0
-    P=0
-    N=0
-    #for all rows in test data
-    for i in 1:size(test_data)[1]
-        #Evalute feature vector i with model
-        res=model(test_data[i][1])
-        #remove extra brackets
-        res=res[1]
-        #if target is 1
-        if test_data[i][2]==1
-            #rightly classified as positive
-            if res>0.5
-                P+=1
-            #wrongly classified as negative
-            else
-                FN+=1
-            end
-        #if target is 0
-        else
-            #rightly classified as negative
-            if res<=0.5
-                N+=1
-            #wrongly classified as positive
-            else
-                FP+=1
-            end
-        end
-    end
-    #return values in an array
-    return [P,N,FP,FN]
-
-end
-
-#Calculate accuracy based on output from evaluation function
-function getAccuracy(eval)
-    return (eval[1]+eval[2])/(sum(eval))
-end
-
-#Splits data as close as possible to the train_percentage then returns an array
-#of the form [data_train, data_test]
-function splitDataTraningAndTest(train_percentage,data)
-    #find cutoff index
-    cutoff=Int(ceil(length(data)*train_percentage))
-    #split data
-    D_test=data[1:cutoff]
-    D_train=data[cutoff+1:end]
-    return D_train,D_test
-end
-
-
 #Main script
 let
+    #Imports CSV file, each line contains a target value of 0 or 1 followed by
+    #a feature vector
+    data=CSV.File("traningData100frames.CSV",header=false)
+
     #percentage of data that is for traning, the rest is for testing
     train_percentage=0.9
     #get number of feature vectors
@@ -142,10 +50,11 @@ let
     L(x,y)=Flux.Losses.mse(model(x), y)
     #model parameters
     par=Flux.params(model)
-    #opt = Flux.Descent(0.0001)
-    opt = RMSProp(0.0001, 0.9)
-    #our optimizer
-    #opt = ADAM()
+    #eta our learning rate
+    η=0.001
+    #The optimizer, decides how we change our parameters to minimize loss
+    #Use classic gradient decent
+    opt = Flux.Descent(η)
 
     #Combine feature vector and target into a vector of touples
     D=Vector(undef,N_vec)
@@ -166,9 +75,131 @@ let
     end
     #evalute model
     eval=getEvaluation(model,D_test)
-    #get accuracy
+
+    #get accuracy given output from getEvaluation
     acc=getAccuracy(eval)
     #print results
-    println("Accuracy: ",acc,"  ","Positive: ",eval[1],"  ","Negative: ",eval[2],"  ","False positive: ",eval[3],"  ","False negative: ",eval[4])
+    println("Accuracy: ",acc,"  ","Positive: ",eval[1],"  ","Negative: ",
+    eval[2],"  ","False positive: ",eval[3],"  ","False negative: ",eval[4])
 
+end
+
+
+
+#Counts number of lines in the cvs, this is the number of feature vectors
+#Input: data, a CSV file
+#Output: n,Integer number of rows
+function countcsvlines(data)
+    #counter
+    n = 0
+    #iterate over rows and count
+    for row in eachrow(data)
+        n += 1
+    end
+    return n
+end
+
+#Gets the number of rows which is the number of features in each feature vector
+#-1
+#Input: data, a CSV file
+#Output: n,Integer number of columns -1
+function getNrFeatures(data)
+    #counter
+    n=0
+    #iterate over the last row and count
+    for i in data[end]
+        n +=1
+    end
+    return n-1
+end
+
+#Normalize data such that all elements are on [0,1]
+#Input: data, a multidimensional array
+#Output: data, a multidimensional array
+function minMaxNormalization(data)
+    #find max
+    max=maximum(data)
+    #find min
+    min=minimum(data)
+    #scale all elements
+    data=(data.-min)/(max-min)
+    #return scaled data
+    return data
+end
+
+#=
+Evaluates are model with the test data and returns
+Input:
+1. model, Flux model our nerual net
+2. test_data, multidimensional array
+Output:
+1. Array of integers. [positive,negative,false positive,false negative]
+=#
+function getEvaluation(model,test_data)
+    #variables to store results
+    FP=0
+    FN=0
+    P=0
+    N=0
+    #for all rows in test data
+    for i in 1:size(test_data)[1]
+        #Evalute feature vector i with model
+        res=model(test_data[i][1])
+        #remove extra brackets
+        res=res[1]
+        #if target is 1
+        if test_data[i][2]==1
+            #rightly classified as positive
+            if res>0.5
+                P+=1
+            #wrongly classified as negative
+            else
+                FN+=1
+            end
+        #if target is 0
+        else
+            #rightly classified as negative
+            if res<=0.5
+                N+=1
+            #wrongly classified as positive
+            else
+                FP+=1
+            end
+        end
+    end
+    #return values in an array
+    return [P,N,FP,FN]
+
+end
+
+
+
+#=
+Calculate accuracy based on output from evaluation function
+Input:
+1. eval, Array of integers [positive,negative,false positive,false negative]
+Output:
+1. Float64, (rightly classified)/(wrongly classified+rightly classified)
+=#
+function getAccuracy(eval)
+    return (eval[1]+eval[2])/(sum(eval))
+end
+
+
+#=
+#Splits data as close as possible to the train_percentage then returns an array
+#of the form [data_train, data_test]
+Input:
+1. train_percentage, Float 64,
+2. data, Multidimensional array, data used of traning and testing the classifier
+Output:
+1. D_train,D_test multidimensional array
+=#
+function splitDataTraningAndTest(train_percentage,data)
+    #find cutoff index
+    cutoff=Int(ceil(length(data)*train_percentage))
+    #split data
+    D_test=data[1:cutoff]
+    D_train=data[cutoff+1:end]
+    return D_train,D_test
 end

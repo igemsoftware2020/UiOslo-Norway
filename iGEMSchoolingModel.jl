@@ -1,14 +1,4 @@
 
-#Import packages
-
-#Pkg.add("Distributions")
-#Pkg.add("Plots")
-#Pkg.add("Printf")
-#Pkg.add("LinearAlgebra")
-#Pkg.add("PyPlot")
-#Pkg.add("PyCall")
-#Pkg.add("DataFrames")
-#Pkg.add("CSV")
 #using packages
 using Random, Distributions
 using DataFrames
@@ -16,13 +6,13 @@ using LinearAlgebra
 using PyPlot
 using PyCall
 using CSV
-@pyimport matplotlib.animation as anim
+#@pyimport matplotlib.animation as anim
+#anim=pyimport("matplotlib.animation")
 
-#All units are fish length
 #returns a named touple of environment parameters
 function environmentParameters()
     Env_Para=(
-    L=1000,  #length of each side of cubic tank
+    L=1000,  #dimensionless length of each side of cubic/square tank
     R_Fish=100, #Multiplies initial normal distribution of fish positions to
     #spread them out
     ampVNoise = 0.3, # amplitude of velocity noise
@@ -80,9 +70,9 @@ function visualParamters()
     #the number of frames for blender and scatter animation that will be saved
     N_frames=100,  #number of frames needs to be even
     #saves N_frames positions in dataForVisualization, only saves first run
-    save_pos=false,
+    save_pos=true,
     # create an scatter animation
-    scatter_anim=true,
+    scatter_anim=false,
     )
     return Vizual_Para
 end
@@ -108,346 +98,8 @@ function dataAnalysisParameters()
     avgPosition=true,
     )
 end
-#Returns a singel scalar
-function avgPositionDimSum(vecOfPos)
-    val=0  #temporary value
-    #for all entries in vecOfPos add up the sum of all elements in that matrix
-    for i in 1:size(vecOfPos)[1]
-        val=val+sum(abs.(vecOfPos[i]))
-    end
-    return val
-end
-
-#Returns vector contaning a indexes of fishes between min and max distance
-function indexInZone(minDist,maxDist,P,j)
-        #calculate distance to all fishes
-        dist=sqrt.(sum((P.-transpose(P[j,:])).^2,dims=2))
-        #return index for those fishes whose distance is whitin the interval
-        inZone=[i for (i,x) in enumerate(dist) if minDist<x<maxDist]
-        return inZone
-end
-
-#Returns the attraction direction, a vector pointing towards a the set of fishes
-#which the selected fish is attracted to
-function attractDir(P,j,inAttZone,attWeight,Sim_Para)
-    #initialization
-    attDir=zeros(Sim_Para[:dimension],1)
-
-    #greate vector towards the average position of fishes in attraction zone
-    a_v=sum(P[vec(inAttZone),:],dims=1)./size(inAttZone)[1]-transpose(P[j,:])
-
-    #check for 0
-    if sum(a_v.^2)>0
-        #normalize and scale vector
-        attDir=transpose(attWeight*normalize(a_v))
-    end
 
 
-    return attDir
-
-end
-
-#Return vector which represents repulsion, pointing away from the fishes in the
-#repulsive zone
-function repulsDir(P,j,inRepZone,repWeight,Sim_Para)
-    #initialization
-    repulsDir=zeros(Sim_Para[:dimension],1)
-    #create vector
-    r_v=transpose(P[j,:])-sum(P[vec(inRepZone),:],dims=1)
-    #check for 0
-    if sum(r_v.^2)>0
-        #normalize, scale and transpose vector
-        repulsDir=transpose(repWeight*normalize(r_v))
-    end
-
-    return repulsDir
-
-end
-
-#Returns vector pointing in direction of orientation, the average between
-#self direction and the direction that those in orientation zone is moving
-#towards
-function orientDir(V,j,inOriZone,oriWeight,abs_v,Sim_Para)
-    #initialization
-    oriDir=zeros(Sim_Para[:dimension],1)
-    #add directions of fish in orientation zone
-    V_temp=0*V
-    for i in size(V)[1]
-        V_temp[i,:]=normalize(V[1,:])
-    end
-    o_v=sum(V_temp[vec(inOriZone),:],dims=1)
-    #check length greater than 0
-    if sum(o_v.^2)>0
-        #normalize, scale and tranpose
-        oriDir=oriWeight*transpose(normalize(o_v))
-    end
-
-    return oriDir
-end
-
-#Return a matrix wich can be added to the current velocity matrix as noise
-function velocityNoise(Env_Para,Sim_Para)
-    vNoise=Env_Para[:ampVNoise]*rand(Normal(0,1),Sim_Para[:N_Fish],Sim_Para[:dimension])
-    return vNoise
-end
-
-#Return a matrix wich can be added to the current position matrix as noise
-function positionNoise(Env_Para,Sim_Para)
-    posNoise=Env_Para[:ampPosNoise]*rand(Normal(0,1),Sim_Para[:N_Fish],Sim_Para[:dimension])
-    return posNoise
-end
-
-#Return a matrix which represents initial velocities, where each fish has
-#velocity V[j,:]
-function initVelocity(Fish_Para,Sim_Para)
-    #speed=rand(Normal(Fish_Para[:mean_v], Fish_Para[:var_v]), Sim_Para[:N_Fish],1)
-    #speed=Fish_Para[:max_v]*rand(Sim_Para[:N_Fish],1)
-    speed=5
-    #V=speed.*rand(Normal(0,1), Sim_Para[:N_Fish],Sim_Para[:dimension])
-    V=speed.*(rand(Sim_Para[:N_Fish],Sim_Para[:dimension]).-0.5)
-    return V
-end
-
-#Return a matrix of initial positions where each fish has a position P[j,:]
-function initPosition(Env_Para,Sim_Para)
-    P=(Env_Para[:R_Fish])*rand(Normal(0,1),Sim_Para[:N_Fish],Sim_Para[:dimension])
-    return P
-end
-
-#Return vector contaning initial self weights for all fish
-function initSelfWeight(Fish_Para,Sim_Para)
-    selfW=Fish_Para[:selfWeight]*ones(Sim_Para[:N_Fish],1)
-    return selfW
-end
-
-#Return vector contaning initial repulsion weights
-function initRepWeight(Fish_Para,Sim_Para)
-    repWeight=Fish_Para[:repulseWeight]*ones(Sim_Para[:N_Fish],1)
-    return repWeight
-end
-
-#Return vector contaning initial orientation weights
-function initOriWeight(Fish_Para,Sim_Para)
-    oriWeight=Fish_Para[:orientationWeight]*ones(Sim_Para[:N_Fish],1)
-    return oriWeight
-end
-
-#Return vector contaning initial attraction weights
-function initAttWeight(Fish_Para,Sim_Para)
-    attWeight=Fish_Para[:attractWeight]*ones(Sim_Para[:N_Fish],1)
-    return attWeight
-end
-
-#Return matrix with all velocities after keeping them within limits
-function velAdjustedForLimit(Fish_Para,Sim_Para,V)
-    #Gives a boolean vector for velocities in V whose norm is greater than
-    #the limit
-    V_over=sqrt.(sum(V.^2,dims=2)) .> Fish_Para[:max_v]
-
-    #Initialization of matrix to store normalized velocity vectors whose
-    #magnitude needs to be reduced
-    norm_V=zeros(sum(V_over),Sim_Para[:dimension])
-    #check if there are any velocities over the limit
-    if sum(V_over)>0
-        #loop for each vector that is over the limit
-        for k in 1:sum(V_over)
-            #Holds the vectors that are over the limit
-            Vk=V[vec(V_over),:]
-            #if there is more than one vector then only read one vector at
-            #a time
-            if size(Vk)[1]>1
-                Vk=Vk[k,:]
-            end
-            #normalize vector and put it in norm_V
-            norm_V[k,:]=normalize(Vk)
-
-        end
-        #Change the velocities that where over the limit to be max velocities
-        V[vec(V_over),:]=Fish_Para[:max_v]*norm_V
-    end
-
-    return V
-end
-
-#Return position matrix and velocity matrix of all fish after making sure
-#that they are within boundry
-function keepWithinBoundry(Env_Para,P,V)
-    #check if fishes are outside of boundry for any dimension
-    #returns logical matrix N_Fish x dimension
-    P_under= P .< -Env_Para[:L]/2
-    P_over = P .> Env_Para[:L]/2
-    #change positions to be on boundry
-    P[vec(P_under)] .= -Env_Para[:L]/2
-    P[vec(P_over)] .=Env_Para[:L]/2
-    #Gend indicies of those fish that crossed the boundry
-    ind=P_under+P_over
-    ind=sum(ind,dims=2)
-    ind=ind.>0
-    #make the fish that crossed boundry turn 180 degrees for all
-    #dimensions
-    V[vec(ind),:] =-V[vec(ind),:]
-
-    return P,V
-end
-
-#Given a vector wher each entry is a matrix create a animation in mp4 format
-#and save that animation, each frame is a set of points defined by the matrices
-function animScatterFromVec(Env_Para,Data,Vizual_Para)
-
-    #function animation for updates
-    function animUpdate(i)
-        clf() #clear figure
-        #create axis
-        ax = plt.axes(xlim = (-Env_Para[:L]/2,Env_Para[:L]/2),ylim=(-Env_Para[:L]/2,Env_Para[:L]/2))
-        #return new scatter plot
-        return plt.scatter(Data[i+1][:,1], Data[i+1][:,2])
-    end
-
-    #Construct Figure and Plot Data
-    fig = plt.figure(figsize=(5,5))
-    #set axis
-    ax = plt.axes(xlim = (-Env_Para[:L]/2,Env_Para[:L]/2),ylim=(-Env_Para[:L]/2,Env_Para[:L]/2))
-    #scatter plot
-    scat= plt.scatter(Data[1][:,1], Data[1][:,2])
-    #create function animation object
-    myanim = anim.FuncAnimation(fig, animUpdate, frames=100, interval=100)
-    #save animation where code is located
-    myanim[:save]("test1.mp4", bitrate=-1, extra_args=["-vcodec", "libx264", "-pix_fmt", "yuv420p"])
-
-end
-
-#Returns the velocity matrix, udating it taking the sum over all fish in each
-#zone
-function updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,attWeight)
-    #magnitude of current velocity
-    abs_v=norm(V[j,:])
-
-    if abs_v>0
-
-        #find index for fishes in repulsion zone
-        inRepZone=indexInZone(0,Fish_Para[:R_repulsion],P,j)
-        #find index for fishes in orientation zone
-        inOriZone=indexInZone(Fish_Para[:R_repulsion],Fish_Para[:R_orientation],P,j)
-        #find index for fishes in attraction zone
-        inAttZone=indexInZone(Fish_Para[:R_orientation],Fish_Para[:R_attraction],P,j)
-
-        #initialization of new direction vector
-        new_dir=zeros(Sim_Para[:dimension],1)
-        #if there are fishes in repulsion zone
-        if size(inRepZone)[1]>0
-            #calculate new direction away from fishes in repulsion zone
-            new_dir=new_dir+repulsDir(P,j,inRepZone,repWeight[j],Sim_Para)
-        end
-        #if there are fishes in orientation zone
-        if size(inOriZone)[1]>0
-            #calculate new direction to orient with fishes in orientation zone
-            new_dir=new_dir+orientDir(P,j,inOriZone, oriWeight[j],abs_v,Sim_Para)
-        end
-        #if there are fishes in attraction zone
-        if size(inAttZone)[1]>0
-            #calculate new direction towards fishes in attraction zone
-            new_dir=new_dir+attractDir(P,j,inAttZone, attWeight[j],Sim_Para)
-        end
-
-        #if new dir is not empty
-        if size(new_dir)[1]>0
-            #change velocity to have same magnitude but new direction
-            V[j,:]=abs_v*normalize(selfW[j]*V[j,:]/abs_v+new_dir)
-        end
-
-    end
-
-    return V
-
-end
-#Change the self weight of N_selfweightOff individuals by an amplitude
-#selfOffAm times a random number, returns vector of self weights
-function selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
-    #find random individuals
-    ind=randperm(Sim_Para[:N_Fish])[1:Sick_Para[:N_selfweightOff]]
-    #change weight of those individuals by multiplication
-    selfW[ind]=rand(Sick_Para[:N_selfweightOff],1)*Sick_Para[:selfOffAm].*selfW[ind]
-    return selfW
-end
-
-#Sightly change self weight of all individuals
-function ShiftSelfWeightAll(Sick_Para,selfW,Sim_Para)
-end
-
-#Saves position data in csv file
-function generateCSVFromData(time_stamps,P,Vizual_Para,Sim_Para,Env_Para)
-    #initialize matrix that will hold all data, each row's first entry is a
-    #time stamp followed by positions [x,y,z] or [x,y] for each fish
-    M=zeros(Vizual_Para[:N_frames],1+Sim_Para[:dimension]*Sim_Para[:N_Fish])
-    #put time stamps in first column
-    #M[:,1]=time_stamps
-    M[:,1]=ones(Vizual_Para[:N_frames],1)
-    #for number of frames
-    for i in 1:Vizual_Para[:N_frames]
-        #reshape position matrix s.t that the matrix is on the form specified
-        P_reshaped=reshape(transpose(P[i]),1,length(P[i]))
-        #add positions to M
-        M[i,2:(1+Sim_Para[:dimension]*Sim_Para[:N_Fish])]=P_reshaped
-    end
-    #create csv that contains M
-    CSV.write("dataForVisualization.CSV",  DataFrame(M), writeheader=false)
-end
-
-#Appends a vector as a row to a csv where first entry is class and the rest
-#features
-function appendVectorToCsv(vec,DataAnalysis_Para)
-    #temporary vector
-    temp_vec=[]
-    count=0
-    for entry in transpose(vec)
-        append!(temp_vec,entry[1])
-        if length(entry)>1
-            append!(temp_vec,entry[2])
-            count+=1
-        end
-        if length(entry)>2
-            append!(temp_vec,entry[3])
-            count+=1
-        end
-        count+=1
-    end
-    #initialize vector
-    data=zeros(length(temp_vec)+1,1)
-    #set class as first entry
-    data[1]=DataAnalysis_Para[:class]
-    #put vector in data
-    for i in 1:count
-        data[i+1]=temp_vec[i]
-    end
-    #transpose
-    data=transpose(data)
-    #append vector to CSV file
-    CSV.write("dataforAnalysis.CSV", DataFrame(data), header = false, append = true)
-end
-
-#Seturns the average position as an array [x,y] or [x,y,z] depending on
-#dimension
-function avgPos(Pos)
-    #calculate average position
-    avgP=sum(Pos,dims=1)/size(Pos)[1]
-    return avgP
-end
-
-#Seturns an array of indicies that we want samples when we want N_samples
-#samples from a set with N_set entries
-function getIndicesToSample(N_set,N_samples)
-    #initialization
-    ind=[]
-    for i in 1:N_set
-        #next index we want to sample
-        next_ind=Int(ceil(i*(N_set/N_samples)))
-        #if that in index is in the set then append to array
-        if next_ind<=N_set
-            append!(ind,next_ind)
-        end
-    end
-    return ind
-end
 
 #Main
 let
@@ -594,4 +246,525 @@ let
         animScatterFromVec(Env_Para,Posdata_anim,Vizual_Para)
     end
 
+end
+
+#=
+Add the absolute value of all positional componenets togheter
+Input:
+1. vecOfPos, Multidimensional array
+Output:
+1. val, Float64
+=#
+function avgPositionDimSum(vecOfPos)
+    val=0  #temporary value
+    #for all entries in vecOfPos add up the sum of all elements in that matrix
+    for i in 1:size(vecOfPos)[1]
+        val=val+sum(abs.(vecOfPos[i]))
+    end
+    return val
+end
+
+
+#=
+Finds fishes whos distance is between minDist and maxDist from fish j
+where fish j's position is P[j,:]
+Input:
+1. minDist, Float64
+2. maxDist, Float 64
+3. P, Multidimensional array, position of fishes
+4. j, Integer, which fish we are looking at
+Output:
+1. inZone, array of Integers
+=#
+function indexInZone(minDist,maxDist,P,j)
+        #calculate distance to all fishes
+        dist=sqrt.(sum((P.-transpose(P[j,:])).^2,dims=2))
+        #return index for those fishes whose distance is whitin the interval
+        inZone=[i for (i,x) in enumerate(dist) if minDist<x<maxDist]
+        return inZone
+end
+
+#=
+Returns the attraction direction, a vector pointing towards a the set of fishes
+which the selected fish is attracted to
+Input:
+1. P, Multidimensional array, position of fishes
+2. j, Integer, which fish we are looking at
+3. inAttZone, array of integers, indicies of fishes in attraction zone
+4. attWeight, float
+5. Sim_Para, named touple of simulation parameters
+Output:
+1. attDir, array of float, attraction direction
+=#
+function attractDir(P,j,inAttZone,attWeight,Sim_Para)
+    #initialization
+    attDir=zeros(Sim_Para[:dimension],1)
+
+    #greate vector towards the average position of fishes in attraction zone
+    a_v=sum(P[vec(inAttZone),:],dims=1)./size(inAttZone)[1]-transpose(P[j,:])
+
+    #check for 0
+    if sum(a_v.^2)>0
+        #normalize and scale vector
+        attDir=transpose(attWeight*normalize(a_v))
+    end
+
+
+    return attDir
+
+end
+#=
+Return weighted vector which represents repulsion, pointing away from the fishes
+in the repulsive zone
+Input:
+1. P, Multidimensional array, position of fishes
+2. j, Integer, which fish we are looking at
+3. inRepZone, array of integers, indicies of fishes in repulsion zone
+4. repWeight, float
+5. Sim_Para, named touple of simulation parameters
+Output:
+1. repDir, array of float, repulsion direction
+=#
+function repulsDir(P,j,inRepZone,repWeight,Sim_Para)
+    #initialization
+    repulsDir=zeros(Sim_Para[:dimension],1)
+    #create vector
+    r_v=transpose(P[j,:])-sum(P[vec(inRepZone),:],dims=1)
+    #check for 0
+    if sum(r_v.^2)>0
+        #normalize, scale and transpose vector
+        repulsDir=transpose(repWeight*normalize(r_v))
+    end
+
+    return repulsDir
+
+end
+
+
+#=
+Returns weighted vector pointing in direction of orientation, the average
+direction that those in orientation zone is moving towards
+Input:
+1. V, Multidimensional array, velocity of fishes
+2. j, Integer, which fish we are looking at
+3. inOriZone, array of integers, indicies of fishes in orientation zone
+4. oriWeight, float
+5. abs_v, float, absolute velocity
+6. Sim_Para, named touple of simulation parameters
+Output:
+1. oriDir, array of float, orientation direction
+=#
+function orientDir(V,j,inOriZone,oriWeight,abs_v,Sim_Para)
+    #initialization
+    oriDir=zeros(Sim_Para[:dimension],1)
+    #add directions of fish in orientation zone
+    V_temp=0*V
+    for i in size(V)[1]
+        V_temp[i,:]=normalize(V[1,:])
+    end
+    o_v=sum(V_temp[vec(inOriZone),:],dims=1)
+    #check length greater than 0
+    if sum(o_v.^2)>0
+        #normalize, scale and tranpose
+        oriDir=oriWeight*transpose(normalize(o_v))
+    end
+
+    return oriDir
+end
+
+#=
+#Return a matrix wich can be added to the current velocity matrix as noise
+Input:
+1. Env_Para, named tuple, environment parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. vNoise, multidimensional array
+=#
+function velocityNoise(Env_Para,Sim_Para)
+    vNoise=Env_Para[:ampVNoise]*rand(Normal(0,1),Sim_Para[:N_Fish],
+           Sim_Para[:dimension])
+    return vNoise
+end
+
+#=
+Return a matrix wich can be added to the current position matrix as noise
+Input:
+1. Env_Para, named tuple, environment parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. posNoise, multidimensional array
+=#
+function positionNoise(Env_Para,Sim_Para)
+    posNoise=Env_Para[:ampPosNoise]*rand(Normal(0,1),Sim_Para[:N_Fish],
+             Sim_Para[:dimension])
+    return posNoise
+end
+
+#=
+Return a matrix which represents initial velocities, where each fish has
+velocity V[j,:]
+Input:
+1. Fish_Para, named tuple, fish parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. V, multidimensional array of floats
+=#
+function initVelocity(Fish_Para,Sim_Para)
+    speed=Fish_Para[:mean_v]*rand(Sim_Para[:N_Fish],1)
+    V=speed.*(rand(Sim_Para[:N_Fish],Sim_Para[:dimension]).-0.5)
+    return V
+end
+
+#=
+Return a matrix of initial positions where each fish has a position P[j,:]
+there fish are normally distributed around the center of the tank
+Input:
+1. Env_Para, named tuple, environment parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. P, multidimensional array of floats
+=#
+function initPosition(Env_Para,Sim_Para)
+    P=(Env_Para[:R_Fish])*rand(Normal(0,1),Sim_Para[:N_Fish],Sim_Para[:dimension])
+    return P
+end
+
+#=
+Return vector contaning initial self weights for all fish
+Input:
+1. Fish_Para, named tuple, fish parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. selfW, array of floats
+=#
+function initSelfWeight(Fish_Para,Sim_Para)
+    selfW=Fish_Para[:selfWeight]*ones(Sim_Para[:N_Fish],1)
+    return selfW
+end
+
+#=
+Return vector contaning initial repulsion weights
+Input:
+1. Fish_Para, named tuple, fish parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. repWeight, array of floats
+=#
+function initRepWeight(Fish_Para,Sim_Para)
+    repWeight=Fish_Para[:repulseWeight]*ones(Sim_Para[:N_Fish],1)
+    return repWeight
+end
+
+#=
+Return vector contaning initial orientation weights
+Input:
+1. Fish_Para, named tuple, fish parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. oriWeight, array of floats
+=#
+function initOriWeight(Fish_Para,Sim_Para)
+    oriWeight=Fish_Para[:orientationWeight]*ones(Sim_Para[:N_Fish],1)
+    return oriWeight
+end
+
+
+#=
+Return vector contaning initial attraction weights
+Input:
+1. Fish_Para, named tuple, fish parameters
+2. Sim_Par, named tuple, simulation paramaters
+Output:
+1. attWeight, array of floats
+=#
+function initAttWeight(Fish_Para,Sim_Para)
+    attWeight=Fish_Para[:attractWeight]*ones(Sim_Para[:N_Fish],1)
+    return attWeight
+end
+
+#=
+Return matrix with all velocities after keeping them within limits
+Input:
+1. Fish_Para, named tuple, fish parameters
+2. Sim_Par, named tuple, simulation paramaters
+3. V, multidimensional array of floats, representing velocities
+Output:
+1. V, multidimensional array of floats, representing velocities
+=#
+function velAdjustedForLimit(Fish_Para,Sim_Para,V)
+    #Gives a boolean vector for velocities in V whose norm is greater than
+    #the limit
+    V_over=sqrt.(sum(V.^2,dims=2)) .> Fish_Para[:max_v]
+
+    #Initialization of matrix to store normalized velocity vectors whose
+    #magnitude needs to be reduced
+    norm_V=zeros(sum(V_over),Sim_Para[:dimension])
+    #check if there are any velocities over the limit
+    if sum(V_over)>0
+        #loop for each vector that is over the limit
+        for k in 1:sum(V_over)
+            #Holds the vectors that are over the limit
+            Vk=V[vec(V_over),:]
+            #if there is more than one vector then only read one vector at
+            #a time
+            if size(Vk)[1]>1
+                Vk=Vk[k,:]
+            end
+            #normalize vector and put it in norm_V
+            norm_V[k,:]=normalize(Vk)
+
+        end
+        #Change the velocities that where over the limit to be max velocities
+        V[vec(V_over),:]=Fish_Para[:max_v]*norm_V
+    end
+
+    return V
+end
+
+#=
+Return position matrix and velocity matrix of all fish after making sure
+that they are within boundry
+Input:
+1. Env_Para, named tuple, environment parameters
+2. P, multidimensional array of floats, representing positions
+3. V, multidimensional array of floats, representing velocities
+Output:
+1. P,V multidimensional array of floats, representing positions and
+       velocities
+=#
+function keepWithinBoundry(Env_Para,P,V)
+    #check if fishes are outside of boundry for any dimension
+    #returns logical matrix N_Fish x dimension
+    P_under= P .< -Env_Para[:L]/2
+    P_over = P .> Env_Para[:L]/2
+    #change positions to be on boundry
+    P[vec(P_under)] .= -Env_Para[:L]/2
+    P[vec(P_over)] .=Env_Para[:L]/2
+    #Gend indicies of those fish that crossed the boundry
+    ind=P_under+P_over
+    ind=sum(ind,dims=2)
+    ind=ind.>0
+    #make the fish that crossed boundry turn 180 degrees for all
+    #dimensions
+    V[vec(ind),:] =-V[vec(ind),:]
+
+    return P,V
+end
+
+#=
+Given a vector where each entry is a matrix representing positions create a
+animation in mp4 format and save that animation, each frame is a set of points
+defined by the matrices
+Input:
+1. Env_Para, named tuple, environment parameters
+2. Data, vector where each entry is a multidimensional array of floats
+3. Vizual_Para, named tuple, visualization parameters
+Output:
+none, saves an .mp4 file
+=#
+function animScatterFromVec(Env_Para,Data,Vizual_Para)
+
+    #function animation for updates
+    function animUpdate(i)
+        clf() #clear figure
+        #create axis
+        ax = plt.axes(xlim = (-Env_Para[:L]/2,Env_Para[:L]/2),ylim=(
+            -Env_Para[:L]/2,Env_Para[:L]/2))
+        #return new scatter plot
+        return plt.scatter(Data[i+1][:,1], Data[i+1][:,2])
+    end
+
+    #Construct Figure and Plot Data
+    fig = plt.figure(figsize=(5,5))
+    #set axis
+    ax = plt.axes(xlim = (-Env_Para[:L]/2,Env_Para[:L]/2),ylim=(
+        -Env_Para[:L]/2,Env_Para[:L]/2))
+    #scatter plot
+    scat= plt.scatter(Data[1][:,1], Data[1][:,2])
+    #create function animation object
+    myanim = anim.FuncAnimation(fig, animUpdate, frames=100, interval=100)
+    #save animation where code is located
+    myanim[:save]("test1.mp4", bitrate=-1, extra_args=["-vcodec", "libx264",
+                  "-pix_fmt", "yuv420p"])
+
+end
+
+#=
+Updates the direction of fish j according to the simple model
+Input:
+1. V, multidimensional array of floats, representing velocities
+2. Fish_Para, named tuple, fish parameters
+3. P, multidimensional array of floats, representing positions
+4. j, integer
+5. Sim_Para, named tuple, simulation parameters
+6. selfW, array of floats, self weight
+7. repWeight, array of floats, repulsion weight
+8. oriWeight, array of floats, orientation weight
+9. attWeight, array of floats, attraction weight
+Output:
+1. V, multidimensional array of floats, representing velocities
+=#
+function updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,
+                         attWeight)
+    #magnitude of current velocity
+    abs_v=norm(V[j,:])
+
+    if abs_v>0
+
+        #find index for fishes in repulsion zone
+        inRepZone=indexInZone(0,Fish_Para[:R_repulsion],P,j)
+        #find index for fishes in orientation zone
+        inOriZone=indexInZone(Fish_Para[:R_repulsion],Fish_Para[:R_orientation],P,j)
+        #find index for fishes in attraction zone
+        inAttZone=indexInZone(Fish_Para[:R_orientation],Fish_Para[:R_attraction],P,j)
+
+        #initialization of new direction vector
+        new_dir=zeros(Sim_Para[:dimension],1)
+        #if there are fishes in repulsion zone
+        if size(inRepZone)[1]>0
+            #calculate new direction away from fishes in repulsion zone
+            new_dir=new_dir+repulsDir(P,j,inRepZone,repWeight[j],Sim_Para)
+        end
+        #if there are fishes in orientation zone
+        if size(inOriZone)[1]>0
+            #calculate new direction to orient with fishes in orientation zone
+            new_dir=new_dir+orientDir(P,j,inOriZone, oriWeight[j],abs_v,Sim_Para)
+        end
+        #if there are fishes in attraction zone
+        if size(inAttZone)[1]>0
+            #calculate new direction towards fishes in attraction zone
+            new_dir=new_dir+attractDir(P,j,inAttZone, attWeight[j],Sim_Para)
+        end
+
+        #if new dir is not empty
+        if size(new_dir)[1]>0
+            #change velocity to have same magnitude but new direction
+            V[j,:]=abs_v*normalize(selfW[j]*V[j,:]/abs_v+new_dir)
+        end
+
+    end
+
+    return V
+
+end
+#=
+Change the self weight of N_selfweightOff individuals by an amplitude
+selfOffAm times a random number, returns vector of self weights
+Input:
+1. Sick_Para, named tuple, sickness parameters
+2. selfW, array of floats, self weight
+3. Sim_Para, named tuple, simulation parameters
+Output:
+1. selfW, array of floats, self weight
+=#
+function selfWeightShiftSome(Sick_Para,selfW,Sim_Para)
+    #find random individuals
+    ind=randperm(Sim_Para[:N_Fish])[1:Sick_Para[:N_selfweightOff]]
+    #change weight of those individuals by multiplication
+    selfW[ind]=rand(Sick_Para[:N_selfweightOff],1)*Sick_Para[:selfOffAm].*selfW[ind]
+    return selfW
+end
+
+#=
+Saves position data in csv file
+Input:
+1. time_stamps, array of floats
+2. P, multidimensional array of floats, representing positions
+3. Vizual_Para, named tuple, visualization parameters
+4. Sim_Para, named tuple, simulation parameters
+5. Env_Para, named tuple, environment parameters
+Output:
+none, saves a csv
+=#
+function generateCSVFromData(time_stamps,P,Vizual_Para,Sim_Para,Env_Para)
+    #initialize matrix that will hold all data, each row's first entry is a
+    #time stamp followed by positions [x,y,z] or [x,y] for each fish
+    M=zeros(Vizual_Para[:N_frames],1+Sim_Para[:dimension]*Sim_Para[:N_Fish])
+    #put time stamps in first column
+    M[:,1]=time_stamps
+    #M[:,1]=ones(Vizual_Para[:N_frames],1)
+    #for number of frames
+    for i in 1:Vizual_Para[:N_frames]
+        #reshape position matrix s.t that the matrix is on the form specified
+        P_reshaped=reshape(transpose(P[i]),1,length(P[i]))
+        #add positions to M
+        M[i,2:(1+Sim_Para[:dimension]*Sim_Para[:N_Fish])]=P_reshaped
+    end
+    #create csv that contains M
+    CSV.write("dataForVisualization.CSV",  DataFrame(M), writeheader=false)
+end
+
+#=
+Appends a vector as a row to a csv where first entry is class and the rest
+features
+Input:
+1. vec, array of floats
+2. DataAanalysis_Para, named tuple, data analysis parameters
+Output:
+none, saves to a csv
+=#
+function appendVectorToCsv(vec,DataAnalysis_Para)
+    #temporary vector
+    temp_vec=[]
+    count=0
+    for entry in transpose(vec)
+        append!(temp_vec,entry[1])
+        if length(entry)>1
+            append!(temp_vec,entry[2])
+            count+=1
+        end
+        if length(entry)>2
+            append!(temp_vec,entry[3])
+            count+=1
+        end
+        count+=1
+    end
+    #initialize vector
+    data=zeros(length(temp_vec)+1,1)
+    #set class as first entry
+    data[1]=DataAnalysis_Para[:class]
+    #put vector in data
+    for i in 1:count
+        data[i+1]=temp_vec[i]
+    end
+    #transpose
+    data=transpose(data)
+    #append vector to CSV file
+    CSV.write("dataforAnalysis.CSV", DataFrame(data), header = false, append = true)
+end
+#=
+Returns the average position as an array [x,y] or [x,y,z] depending on
+dimension
+Input:
+1. Pos, multidimensional array of floats
+Output:
+1. avgP, array of floats
+=#
+function avgPos(Pos)
+    #calculate average position
+    avgP=sum(Pos,dims=1)/size(Pos)[1]
+    return avgP
+end
+
+#=
+Returns an array of indicies that we want samples when we want N_samples
+samples from a set with N_set entries
+Input:
+1. N_set, Integer
+2. N_samples, Integer
+Output:
+1. ind, array of integers
+=#
+function getIndicesToSample(N_set,N_samples)
+    #initialization
+    ind=[]
+    for i in 1:N_set
+        #next index we want to sample
+        next_ind=Int(ceil(i*(N_set/N_samples)))
+        #if that in index is in the set then append to array
+        if next_ind<=N_set
+            append!(ind,next_ind)
+        end
+    end
+    return ind
 end
