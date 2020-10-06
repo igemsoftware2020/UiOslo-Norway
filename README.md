@@ -1,7 +1,7 @@
 # iGEM2020_UiOslo_Norway (sal.coli)
 Fish school model in julia where you can export data to a julia script for machine learning and to blender for visualization. 
 The purpose of our project is to investigate if it is feasable to detect disease in individuals by using measures on collective behaviour. We have therefor 
-implemented a simple discrete stochastic schooling model where we can change some parameters to create "sick" fish and analyse different measures with a nerual net. Our work is now contanied in three parts, a schooling model iGEMSchoolingModel.jl which generates data for our other two parts. The analysis part iGEMDataAnalysis.jl which consist of a nerual net that is trained and tested on dataforAnalaysis.CSV outputed by the model. And finally we have visualization part consisting of blenderScript.py which imports trajectories from the schooling model outputed in dataforVisualization.CSV. The model is easy to use by non programers as the parameters can be simply set in a txt file and no programming is necisarry. We hope that someone will come along and extend this project as it has the capability to be a usefull tool for scientist and those working with the diagnoistics of fish diseases.
+implemented a simple discrete stochastic schooling model where we can change some parameters to create "sick" fish and analyse different measures with a nerual net. Our work is now contanied in three parts, a schooling model iGEMSchoolingModel.jl which generates data for our other two parts. The analysis part iGEMDataAnalysis.jl which consist of a nerual net that is trained and tested on dataforAnalaysis.CSV outputed by the model. And finally we have visualization part consisting of blenderScript.py which imports trajectories from the schooling model outputed in dataforVisualization.CSV. The model is easy to use by non programers as the parameters can be simply set in a txt file and no programming is necisarry. We hope that someone will come along and extend this project as it has the capability to be a usefull tool for scientist and those working with the diagnoistics of fish diseases. We have designed the code as best as possible to allow for introducing different and realistic behaviours. 
 # installation 
 
 To use our repository to the fullest you will need to install Julia, blender and ffmpeg. 
@@ -25,14 +25,13 @@ FFMPEG can be found here https://ffmpeg.org/download.html. You can either instal
 # Schooling model 
 - Descreption 
 ![Model description](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/Parameters-in-separate-text-file/discreteschoolingmodeltest.png)
-
-
+This model is an extention to 3 dimensions of "Simulating The Collective Behavior of Schooling Fish With A Discrete Stochastic Model" by Alethea Barbaro , Bjorn Birnir, Kirk Taylor (2006).
 - Running the model 
 
 After installation of software and packages simply download the Julia file iGEMSchoolingModel.jl and parametersForModel.txt and put them in the same folder. Then open iGEMSchoolingModel.jl with your julia editor and hit "run all". You can play around with the schooling model by changing parameters in parametersForModel without needing to touch the code itself. Depending on your choices with the parameters it will generate data for analysis and animations + a simple scatter animation 
 
 # Data analysis 
-As described the schooling model outputs a file called dataforAnalysis.CSV. The data contained in this file is the basis for traning and testing our classifier. To run the code simply download iGEMDataAnalysis.jl and open it in your editor and hit run. It will output results into 
+As described the schooling model outputs a file called dataforAnalysis.CSV. The data contained in this file is the basis for traning and testing our classifier. To run the code simply download iGEMDataAnalysis.jl and open it in your editor and hit run. It will output results into the terminal automatically.
 
 
 # Blender: Vizualization
