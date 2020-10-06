@@ -6,96 +6,193 @@ using LinearAlgebra
 using PyPlot
 using PyCall
 using CSV
-#@pyimport matplotlib.animation as anim
+
+
 
 #returns a named touple of environment parameters
 function environmentParameters()
+    file = open("parametersForModel.txt")
+    avoidStr="#"
+    delimiter='='
     Env_Para=(
-    L=1000,  #dimensionless length of each side of cubic/square tank
-    R_Fish=100, #Multiplies initial normal distribution of fish positions to
-    #spread them out
-    ampVNoise = 0.3, # amplitude of velocity noise
-    ampPosNoise=1, #amplitude of position noise
+    #dimensionless length of each side of cubic/square tank
+    L=parse(Float32,getParaFromFile(file,"L",avoidStr,delimiter)),
+    #Multiplies initial normal distribution of fish positions to spread them out
+    R_Fish=parse(Float32,getParaFromFile(file,"R_Fish",avoidStr,delimiter)),
+    # amplitude of velocity noise
+    ampVNoise = parse(Float64,getParaFromFile(file,"ampVNoise",avoidStr,delimiter)),
+    #amplitude of position noise
+    ampPosNoise=parse(Float64,getParaFromFile(file,"ampPosNoise",avoidStr,delimiter)),
     )
     return Env_Para
 end
 
 #Returns a named touple of simulation parameters
 function simulationParameters()
+    file = open("parametersForModel.txt")
+    avoidStr="#"
+    delimiter='='
+
     Sim_Para=(
-    N_Fish = 100, #number of fishes
-    dimension=2, #number of dimensions
-    dt = 0.25, # time step
-    N_steps=1000, #number of time steps
-    N_runs=1, #number of simulation runs, can be used to average measurements
+     #number of fishes
+    N_Fish = parse(Int,getParaFromFile(file,"N_Fish",avoidStr,delimiter)),
+    #number of dimensions
+    dimension=parse(Int,getParaFromFile(file,"dimension",avoidStr,delimiter)),
+    # time step
+    dt = parse(Float64,getParaFromFile(file,"dt",avoidStr,delimiter)),
+    #number of time steps
+    N_steps=parse(Int,getParaFromFile(file,"N_steps",avoidStr,delimiter)),
+    #number of simulation runs, can be used to average measurements
+    N_runs=parse(Int,getParaFromFile(file,"N_runs",avoidStr,delimiter)),
     #number of times code is ran, this can be used to change variables for
     #each instance to generate statistic.
-    N_instances=1
+    N_instances=parse(Int,getParaFromFile(file,"N_instances",avoidStr,delimiter)),
     )
     return Sim_Para
 end
 
 #Returns a named touple of fish parameters
 function fishParameters()
+    file = open("parametersForModel.txt")
+    avoidStr="#"
+    delimiter='='
+
     Fish_Para=(
-    R_attraction = 5*100, #radius of attraction
-    R_orientation = 5*20, #radius of orientation
-    R_repulsion = 5*5, # radius of repulsion
-    attractWeight=1.4, #scalling for attraction
-    repulseWeight=0.7, #scalling for repulsion
-    selfWeight=1, # force for current direction
-    orientationWeight=2, #scalling for orientation
-    mean_v=1, # fish lengths per second
-    max_v=3, # max velocity 3 times mean_v
-    var_v=1, # variance in velocity
+    #radius of attraction
+    R_attraction = parse(Float32,getParaFromFile(file,"R_attraction",avoidStr,delimiter)),
+    #radius of orientation
+    R_orientation = parse(Float32,getParaFromFile(file,"R_orientation",avoidStr,delimiter)),
+    # radius of repulsion
+    R_repulsion = parse(Float32,getParaFromFile(file,"R_repulsion",avoidStr,delimiter)),
+    #scalling for attraction
+    attractWeight=parse(Float32,getParaFromFile(file,"attractWeight",avoidStr,delimiter)),
+    #scalling for repulsion
+    repulseWeight=parse(Float32,getParaFromFile(file,"repulseWeight",avoidStr,delimiter)),
+    #force for current direction
+    selfWeight=parse(Float32,getParaFromFile(file,"selfWeight",avoidStr,delimiter)),
+    #scalling for orientation
+    orientationWeight=parse(Float32,getParaFromFile(file,"orientationWeight",avoidStr,delimiter)),
+    #fish lengths per second
+    mean_v=parse(Float32,getParaFromFile(file,"mean_v",avoidStr,delimiter)),
+    #max velocity 3 times mean_v
+    max_v=parse(Float32,getParaFromFile(file,"max_v",avoidStr,delimiter)),
+    #variance in velocity
+    var_v=parse(Float32,getParaFromFile(file,"var_v",avoidStr,delimiter)),
     )
     return Fish_Para
 end
 
 #Returns a named touple of sick paramters
 function sickParameters()
+    file = open("parametersForModel.txt")
+    avoidStr="#"
+    delimiter='='
+
+
     Sick_Para=(
     #selfweights are different for certain individuals (sick ones)
-    selfWeightOffIndivually=false,
-    N_selfweightOff=100, #the number of fishes for which selfweight is ofset
-    selfOffAm=10, #amplitude that the self weight is multiplied by
+    selfWeightOffIndivually=parse(Bool,getParaFromFile(file,"selfWeightOffIndivually",avoidStr,delimiter)),
+    #the number of fishes for which selfweight is ofset
+    N_selfweightOff=parse(Int,getParaFromFile(file,"N_selfweightOff",avoidStr,delimiter)),
+    #amplitude that the self weight is multiplied by
+    selfOffAm=parse(Float32,getParaFromFile(file,"selfOffAm",avoidStr,delimiter)),
     )
     return Sick_Para
 end
 
 #Returns named touple of visualisation paramters
 function visualParamters()
+    file = open("parametersForModel.txt")
+    avoidStr="#"
+    delimiter='='
+
     Vizual_Para=(
     #the number of frames for blender and scatter animation that will be saved
-    N_frames=100,  #number of frames needs to be even
+    #number of frames needs to be even
+    N_frames=parse(Int,getParaFromFile(file,"N_frames",avoidStr,delimiter)),
     #saves N_frames positions in dataForVisualization, only saves first run
-    save_pos=false,
+    save_pos=parse(Bool,getParaFromFile(file,"save_pos",avoidStr,delimiter)),
     # create an scatter animation
-    scatter_anim=true,
+    scatter_anim=parse(Bool,getParaFromFile(file,"scatter_anim",avoidStr,delimiter)),
     )
     return Vizual_Para
 end
 #Returns name touple of data analysis parameters
 function dataAnalysisParameters()
+    file = open("parametersForModel.txt")
+    avoidStr="#"
+    delimiter='='
+
     DataAnalaysis_Para=(
-    N_measurements= 100, #number of measurements
+    #number of measurements
+    N_measurements= parse(Int,getParaFromFile(file,"N_measurements",avoidStr,delimiter)),
 
     #if this is set to true then for each instance a measure will be appended
     #to CSV dataforAanalysis where the first entry is class
-    appendToDataForAnalysis=false,
+    appendToDataForAnalysis=parse(Bool,getParaFromFile(file,"appendToDataForAnalysis",avoidStr,delimiter)),
     #set your target value or class here, it will be assigned to all
     #saved data for analysis
-    class=0,
+    class=parse(Int,getParaFromFile(file,"class",avoidStr,delimiter)),
 
     #different measurements only use one at a time
 
     #uses a measure that gives the average position of each time step, then
     #takes the sum of those positions and all their dimensions over all time
     #and returns that value
-    avgPositionDimensionSum=false,
+    avgPositionDimensionSum=parse(Bool,getParaFromFile(file,"avgPositionDimensionSum",avoidStr,delimiter)),
     #uses measure that takes the average position
-    avgPosition=true,
+    avgPosition=parse(Bool,getParaFromFile(file,"avgPosition",avoidStr,delimiter)),
     )
+end
+
+#=
+Gets line in the file that contains wantedStr but not avoidStr
+Input:
+1. file, a file
+2. wantedStr,  string
+3. wantedStr, string
+Output:
+1. l, string
+=#
+function getLineInFile(file,wantedStr,avoidStr)
+    for l in eachline(file)
+        if !occursin(avoidStr,l)
+            if occursin(wantedStr,l)
+                return l
+            end
+        end
+    end
+    return "None"
+end
+
+#=
+get string after expression +1, so [12=5] returns 5 if expression='='
+Input:
+1. Str, string
+2. expression, char
+Output:
+1. string
+=#
+function getStringAfterExpression(Str,expression)
+    ind_break=findfirst(isequal(expression),Str)
+    return Str[ind_break+1:end]
+end
+
+#=
+get parameter from file using getLineInFile and GetStringAfterExpression.
+This parameter is the string on the line that contains wantedStr but not
+avoidStr after the delimiter
+Input:
+1. file, a file
+2. wantedStr, string
+3. avoidStr, string
+4. delimiter, char
+Output:
+1. String
+=#
+function getParaFromFile(file,wantedStr,avoidStr,delimiter)
+    line = getLineInFile(file,wantedStr,avoidStr)
+    return getStringAfterExpression(line,delimiter)
 end
 
 

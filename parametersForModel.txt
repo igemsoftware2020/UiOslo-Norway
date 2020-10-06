@@ -1,0 +1,81 @@
+
+#dimensionless length of each side of cubic/square tank
+L=1000
+#Multiplies initial normal distribution of fish positions to'
+#spread them out
+R_Fish=100
+# amplitude of velocity noise
+ampVNoise = 0.3
+#amplitude of position noise
+ampPosNoise=1
+
+
+ #number of fishes
+N_Fish = 100
+ #number of dimensions
+dimension=2
+# time step
+dt = 0.2
+#number of time steps
+N_steps=1000
+#number of simulation runs, can be used to average measurements
+N_runs=1
+#number of times code is ran, this can be used to change variables for
+#each instance to generate statistic.
+N_instances=1
+
+#radius of attraction
+R_attraction = 500
+#radius of orientation
+R_orientation = 100
+# radius of repulsion
+R_repulsion = 25
+#scalling for attraction
+attractWeight=1.4
+#scalling for repulsion
+repulseWeight=0.7
+# force for current direction
+selfWeight=1
+#scalling for orientation
+orientationWeight=2
+# fish lengths per second
+mean_v=1
+# max velocity 3 times mean_v
+max_v=3
+ # variance in velocity
+var_v=1
+#selfweights are different for certain individuals (sick ones)
+selfWeightOffIndivually=false
+#the number of fishes for which selfweight is ofset
+N_selfweightOff=100
+#amplitude that the self weight is multiplied by
+selfOffAm=10
+
+
+#the number of frames for blender and scatter animation that will be saved
+#number of frames
+N_frames=100
+#saves N_frames positions in dataForVisualization, only saves first run
+save_pos=true
+# create an scatter animation
+scatter_anim=true
+
+#number of measurements
+N_measurements= 100
+
+#if this is set to true then for each instance a measure will be appended
+#to CSV dataforAanalysis where the first entry is class
+appendToDataForAnalysis=true
+#set your target value or class here, it will be assigned to all
+#saved data for analysis
+
+class=0
+
+#different measurements only use one at a time
+
+#uses a measure that gives the average position of each time step, then
+#takes the sum of those positions and all their dimensions over all time
+#and returns that value
+avgPositionDimensionSum=false
+#uses measure that takes the average position
+avgPosition=true
