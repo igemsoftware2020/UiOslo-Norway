@@ -31,6 +31,9 @@ FFMPEG can be found here https://ffmpeg.org/download.html. You can either instal
 
 After installation of software and packages simply download the Julia file iGEMSchoolingModel.jl and parametersForModel.txt and put them in the same folder. Then open iGEMSchoolingModel.jl with your julia editor and hit "run all". You can play around with the schooling model by changing parameters in parametersForModel without needing to touch the code itself. Depending on your choices with the parameters it will generate data for analysis and animations + a simple scatter animation 
 
+# Data analysis 
+As described the schooling model outputs a file called dataforAnalysis.CSV. The data contained in this file is the basis for traning and testing our classifier. To run the code simply download iGEMDataAnalysis.jl and open it in your editor and hit run. It will output results into 
+
 
 # Blender: Vizualization
 -   Import of template model from .obj file
