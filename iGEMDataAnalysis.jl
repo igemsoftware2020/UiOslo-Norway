@@ -126,7 +126,7 @@ end
 let
     #Imports CSV file, each line contains a target value of 0 or 1 followed by
     #a feature vector
-    data=CSV.File("traningData100frames.CSV",header=false)
+    data=CSV.File("dataforAnalysis.CSV",header=false)
 
     #percentage of data that is for traning, the rest is for testing
     train_percentage=0.9
