@@ -22,10 +22,12 @@ FFMPEG can be found here https://ffmpeg.org/download.html. You can either instal
 
 # Schooling model 
 - Descreption 
+![Model description](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/Parameters-in-separate-text-file/discreteschoolingmodeltest.png)
+
 
 - Running the model 
 
-After installation simply download the Julia file iGEMSchoolingModel.jl and parametersForModel.txt and put them in the same folder. Then open iGEMSchoolingModel.jl with your julia editor and hit "run all". You can play around with the schooling model by changing parameters in parametersForModel without needing to touch the code itself. Depending on your choices with the parameters it will generate data for analysis and animations + a simple scatter animation 
+After installation of software and packages simply download the Julia file iGEMSchoolingModel.jl and parametersForModel.txt and put them in the same folder. Then open iGEMSchoolingModel.jl with your julia editor and hit "run all". You can play around with the schooling model by changing parameters in parametersForModel without needing to touch the code itself. Depending on your choices with the parameters it will generate data for analysis and animations + a simple scatter animation 
 
 
 # Blender: Vizualization
