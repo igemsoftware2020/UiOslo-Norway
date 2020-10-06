@@ -1,8 +1,13 @@
 # iGEM2020_UiOslo_Norway (sal.coli)
-Fish school model in julia where you can export data to a julia script for machine learning and to blender for visualization. 
-The purpose of our project is to investigate if it is feasable to detect disease in individuals by using measures on collective behaviour. We have therefor 
-implemented a simple discrete stochastic schooling model where we can change some parameters to create "sick" fish and analyse different measures with a nerual net. Our work is now contanied in three parts, a schooling model iGEMSchoolingModel.jl which generates data for our other two parts. The analysis part iGEMDataAnalysis.jl which consist of a nerual net that is trained and tested on dataforAnalaysis.CSV outputed by the model. And finally we have visualization part consisting of blenderScript.py which imports trajectories from the schooling model outputed in dataforVisualization.CSV. The model is easy to use by non programers as the parameters can be simply set in a txt file and no programming is necisarry. We hope that someone will come along and extend this project as it has the capability to be a usefull tool for scientist and those working with the diagnoistics of fish diseases. We have designed the code as best as possible to allow for introducing different and realistic behaviours. 
-# installation 
+Fish school model in julia where you can export data to a julia script for machine learning and to blender for visualization. The purpose of our project is to investigate if it is feasable to detect disease in individuals by using measures on collective behaviour. We have therefor implemented a simple discrete stochastic schooling model where we can change some parameters to create "sick" fish and analyse different measures with a nerual net. Our work is now contanied in three parts:
+
+1. A schooling model, iGEMSchoolingModel.jl, which generates data for our other two parts. 
+
+2. The analysis part iGEMDataAnalysis.jl which consist of a nerual net that is trained and tested on dataforAnalaysis.CSV outputed by the model. 
+
+3. And finally we have visualization part consisting of blenderScript.py which imports trajectories from the schooling model outputed in dataforVisualization.CSV. The model is easy to use by non programers as the parameters can be simply set in a txt file and no programming is necisarry. We hope that someone will come along and extend this project as it has the capability to be a usefull tool for scientist and those working with the diagnoistics of fish diseases. We have designed the code as best as possible to allow for introducing different and realistic behaviours. 
+
+# Installation and setup
 
 To use our repository to the fullest you will need to install Julia, blender and ffmpeg. 
 
