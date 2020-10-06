@@ -463,7 +463,7 @@ function velAdjustedForLimit(Fish_Para,Sim_Para,V)
 
         end
         #Change the velocities that where over the limit to be max velocities
-        V[vec(V_over),:]=Fish_Para[:max_v]*norm_V
+        V[vec(V_over),:]=Fish_Para[:mean_v]*norm_V
     end
 
     return V
@@ -750,9 +750,11 @@ let
     #Run simulation with different instance of parameters
     for _inst_ in 1:Sim_Para[:N_instances]
         #marix of initial poisitions
-        P=initPosition(Env_Para,Sim_Para)
+        P_init=initPosition(Env_Para,Sim_Para)
+        P=P_init
         #matrix of initial velocities
-        V=initVelocity(Fish_Para,Sim_Para)
+        V_init=initVelocity(Fish_Para,Sim_Para)
+        V=V_init
 
         #vector of initial self weight
         selfW=initSelfWeight(Fish_Para,Sim_Para)
@@ -774,6 +776,10 @@ let
         vecForDatanalysis=Vector(undef,DataAnalysis_Para[:N_measurements])
         #Run simulation N_runs number of times to generate averages
         for run_k in 1:Sim_Para[:N_runs]
+            #reinitialize positions
+            P=P_init
+            #reinitialize velocities
+            V=V_init
 
             #sample indicies for visualisation
             vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])

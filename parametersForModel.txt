@@ -1,35 +1,42 @@
+#parametersForModel rules:
+#1. all comments must start with #
+#2. all parameters must be on their own line without any #
+#3. all parameters must be on the form x=5, with an equality sign
+#4. parameter names are sensitive, do not change them
+#5. booleans are represented as true or false, for example bol=true
 
-#dimensionless length of each side of cubic/square tank
+
+#length of each side of cubic/square tank
 L=1000
-#Multiplies initial normal distribution of fish positions to'
-#spread them out
+#Multiplies initial normal distribution of fish positions to spread them out
 R_Fish=100
-# amplitude of velocity noise
+#amplitude of velocity noise
 ampVNoise = 0.3
 #amplitude of position noise
 ampPosNoise=1
 
 
- #number of fishes
+#number of fishes
 N_Fish = 100
- #number of dimensions
+#number of dimensions 2 or 3
 dimension=2
-# time step
+#time step the resolution of time
 dt = 0.2
 #number of time steps
 N_steps=1000
-#number of simulation runs, can be used to average measurements
+#number of simulation runs, can be used to average measurements for the
+#current code there is no reason to set it higher than 1
 N_runs=1
 #number of times code is ran, this can be used to change variables for
 #each instance to generate statistic.
-N_instances=1
+N_instances=100
 
 #radius of attraction
-R_attraction = 500
+R_attraction = 150
 #radius of orientation
-R_orientation = 100
+R_orientation = 55
 # radius of repulsion
-R_repulsion = 25
+R_repulsion = 12
 #scalling for attraction
 attractWeight=1.4
 #scalling for repulsion
@@ -44,6 +51,8 @@ mean_v=1
 max_v=3
  # variance in velocity
 var_v=1
+
+
 #selfweights are different for certain individuals (sick ones)
 selfWeightOffIndivually=false
 #the number of fishes for which selfweight is ofset
@@ -58,17 +67,20 @@ N_frames=100
 #saves N_frames positions in dataForVisualization, only saves first run
 save_pos=true
 # create an scatter animation
-scatter_anim=true
+scatter_anim=false
 
-#number of measurements
+#number of measurements the measurements are saved per Instance så if you want
+#many feature vectors the increase the number  of instances by increasing
+#N_instances
 N_measurements= 100
 
 #if this is set to true then for each instance a measure will be appended
 #to CSV dataforAanalysis where the first entry is class
 appendToDataForAnalysis=true
-#set your target value or class here, it will be assigned to all
-#saved data for analysis
 
+#set your target value or class here, it will be assigned to all
+#saved data for analysis if you generate different sets of data for
+#classification it is very important that you change the target value
 class=0
 
 #different measurements only use one at a time
