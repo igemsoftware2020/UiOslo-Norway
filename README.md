@@ -20,7 +20,9 @@ Inside of the IDE packages are added to Julia by using the command Pkg.add("pack
 
 - Blender
 
-Blender can be downloaded here https://www.blender.org/download/ . On ubuntu it is also found as an easy install in the Ubuntu Software. 
+Blender can be downloaded here https://www.blender.org/download/.
+On ubuntu it is also found as an easy install in the Ubuntu Software. 
+We have tested this this project on versions 2.83 & 2.9.
 
 - FFMPEG
 
@@ -40,9 +42,16 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
 
 
 # Blender: Vizualization
--   Import of template model from .obj file
--   Setting up our import script in the scripting menu
--   Pre-run of materials and modifiers for template model.
--   Render settings and output
+- Import of template model from .obj file
+    - To import our 3D model into blender, click "File" -> "Import" -> "Wavefront (.obj)"
+    then select "SALMON.OBJ"  
+- Setting up our import script in the scripting menu and running it.
+    - Open the scripting tab at the middle top of the window.
+    - Press "New" to start a new text block.
+    - Open our provided "blenderScript.py" in a preferred text editor and copy the code into the text block you created in the previous step.
+    - Before running the script, select the salmon model "SALMON" in the "Scene collection" frame at the top right of the window.
+    - Run the script by clicking the arrow at the top of the scripting window or press "ALT-P" on windows.
+- Render settings and output
+    
 
 

@@ -5,9 +5,9 @@
 #4. parameter names are sensitive, do not change them
 #5. booleans are represented as true or false, for example bol=true
 
-##################
+##########################
 # Environment Parameters #
-##################
+##########################
 
 #length of each side of cubic/square tank
 L=1000
@@ -19,9 +19,9 @@ ampVNoise = 0.3
 ampPosNoise=1
 
 
-##########################
-# Simulation Parameters #
-##########################
+#########################
+# Simulation Parameters # 
+#########################
 
 #number of fishes
 N_Fish = 100
@@ -38,9 +38,9 @@ N_runs=1
 #each instance to generate statistic.
 N_instances=100
 
-###############
+###################
 # Fish Parameters #
-###############
+###################
 
 #radius of attraction
 R_attraction = 150
@@ -63,9 +63,9 @@ max_v=3
  # variance in velocity
 var_v=1
 
-###############################
+###################
 # Sick Parameters #
-###############################
+###################
 
 #selfweights are different for certain individuals (sick ones)
 selfWeightOffIndivually=false
@@ -74,9 +74,9 @@ N_selfweightOff=100
 #amplitude that the self weight is multiplied by
 selfOffAm=10
 
-###############################
+############################
 # Visualization Parameters #
-###############################
+############################
 
 #the number of frames for blender and scatter animation that will be saved
 #number of frames
@@ -86,9 +86,9 @@ save_pos=true
 # create an scatter animation
 scatter_anim=false
 
-###############################
+############################
 # Data Analysis Parameters #
-###############################
+############################
 
 #number of measurements the measurements are saved per Instance so if you want
 #many feature vectors then increase the number  of instances by increasing
