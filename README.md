@@ -42,7 +42,8 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
 
 
 # Blender: Vizualization
-- Import of template model from .obj file
+- Import of template model from .OBJ file
+    - Create a blank canvas. First click "A" on your keyboard or select all entities in scene collection. When all are selected press the delete button or right click on a selected object and press "delete"
     - To import our 3D model into blender, click "File" -> "Import" -> "Wavefront (.obj)"
     then select "SALMON.OBJ"  
 - Setting up our import script in the scripting menu and running it.
@@ -51,7 +52,25 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
     - Open our provided "blenderScript.py" in a preferred text editor and copy the code into the text block you created in the previous step.
     - Before running the script, select the salmon model "SALMON" in the "Scene collection" frame at the top right of the window.
     - Run the script by clicking the arrow at the top of the scripting window or press "ALT-P" on windows.
-- Render settings and output
+- Playing the animation
+    - Press the animation tab at the top of the window. When you are in the animation view, press space to start the animation.
+- 
+
+#Vizualization options
+-   By default, blenderScript.py imports 10 objects from "dataForVisualization.CSV" to make it easier to run on low-powered computers.
+iGEMSchoolingModel.jl by default outputs data for 100 objects. By changing the integer value of 
+ 
+    ```python
+    N_obj = 10 # Number of objects
+    ```
+    in blenderScript.py to
+    ```python
+    N_obj = 100 # Number of objects
+    ```
+    you can import all of the default objects.
+
+
+
     
 
 
