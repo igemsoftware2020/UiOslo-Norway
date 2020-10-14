@@ -58,7 +58,7 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
     - Press the animation tab at the top of the window. When you are in the animation view, press space to start the animation. ![Run animation](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Blender_run_animation.png)
 - 
 
-#Vizualization options
+##Vizualization options
 -   By default, blenderScript.py imports 10 objects from "dataForVisualization.CSV" to make it easier to run on low-powered computers.
 iGEMSchoolingModel.jl by default outputs data for 100 objects. By changing the integer value of 
  
