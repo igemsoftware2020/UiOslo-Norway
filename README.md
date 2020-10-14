@@ -43,7 +43,7 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
 
 # Blender: Vizualization
 - Import of template model from .OBJ file
-    - Create a blank canvas. First click "A" on your keyboard or select all entities in scene collection. When all are selected press the delete button or right click on a selected object and press "delete"
+    - Create a blank canvas. First click "A" on your keyboard or select all entities in scene collection. When all are selected press the delete button or right click on a selected object and press the "delete" option in the righ-click menu.
     - To import our 3D model into blender, click "File" -> "Import" -> "Wavefront (.obj)"
     then select "SALMON.OBJ" ![How to import .OBJ](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Blender_import_OBJ.png) ![Select .OBJ](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Blender_select_OBJ.png)
 - Setting up our import script in the scripting menu and running it.
@@ -69,7 +69,7 @@ iGEMSchoolingModel.jl by default outputs data for 100 objects. By changing the i
     ```python
     N_obj = 100 # Number of objects
     ```
-    you can import all of the default objects.
+    you can import all default created objects.
 
 
 
