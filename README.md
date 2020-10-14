@@ -55,7 +55,7 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
     - Run the script by clicking the arrow at the top of the scripting window or press "ALT-P" on windows.
     ![Run script](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Blender_run_script.png)
 - Playing the animation
-    - Press the animation tab at the top of the window. When you are in the animation view, press space to start the animation.
+    - Press the animation tab at the top of the window. When you are in the animation view, press space to start the animation. ![Run animation](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Blender_run_animation.png)
 - 
 
 #Vizualization options
