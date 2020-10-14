@@ -18,7 +18,7 @@ obj_loc = '/home/jonas/Desktop/Salmon_texture.obj'
 # Each line contains a frame, first entry is a time stamp or some other information.
 # then the next tree entries in that line are [x,y,z] positions 
 csv_loc='/home/jonas/Desktop/dataForVisualization.CSV'  
-# csv_loc = r'C:\Users\meide\Documents\GitHub\iGEM2020_UiOslo_Norway/dataforVisualization.CSV' # Windows
+# csv_loc = r'C:\Users\meide\Documents\GitHub\iGEM2020_UiOslo_Norway\dataforVisualization.CSV' # Windows
 
 # The objects that are important or copied will only be found if their name 
 # contains this name space, this is not case sensetive
