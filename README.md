@@ -30,7 +30,7 @@ FFMPEG can be found here https://ffmpeg.org/download.html. You can either instal
 
 
 # Schooling model 
-- Descreption 
+- Description 
 ![Model description](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/Parameters-in-separate-text-file/SimpleDiscreteStochasticSchoolingModel.png)
 This model is an extention to 3 dimensions of "Simulating The Collective Behavior of Schooling Fish With A Discrete Stochastic Model" by Alethea Barbaro , Bjorn Birnir, Kirk Taylor (2006).
 - Running the model 
@@ -45,7 +45,7 @@ As described the schooling model outputs a file called dataforAnalysis.CSV. The 
 - Import of template model from .OBJ file
     - Create a blank canvas. First click "A" on your keyboard or select all entities in scene collection. When all are selected press the delete button or right click on a selected object and press "delete"
     - To import our 3D model into blender, click "File" -> "Import" -> "Wavefront (.obj)"
-    then select "SALMON.OBJ"  
+    then select "SALMON.OBJ" ![How to import .OBJ](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Blender_import_OBJ.png) 
 - Setting up our import script in the scripting menu and running it.
     - Open the scripting tab at the middle top of the window.
     - Press "New" to start a new text block.
