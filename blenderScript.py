@@ -2,14 +2,14 @@ import csv
 import bpy
 
 
-N_obj=10 # Number of objects
-dim=3 # Number of dimensions that the objects hould move in
-scale=10 # Divides positions by scale such that fish are closer togheter
+N_obj = 10 # Number of objects
+dim = 3 # Number of dimensions that the objects hould move in
+scale = 10 # Divides positions by scale such that fish are closer togheter
 
 # Set true if you want to import an .obj file that is suppose to be copied
-importObject=False
+importObject = False
 # Set true if you want to copy a object that is selected with cursour
-CopySelected=True
+CopySelected = True
 
 # File path for import, the name of the imported object has to contain name_space
 obj_loc = '/home/jonas/Desktop/Salmon_texture.obj'
