@@ -9,13 +9,13 @@
 # Environment Parameters #
 ##########################
 
-#length of each side of cubic/square tank
+# Length of each side of cubic/square tank
 L=1000
-#Multiplies initial normal distribution of fish positions to spread them out
+# Multiplies initial normal distribution of fish positions to spread them out
 R_Fish=100
-#amplitude of velocity noise
+# Amplitude of velocity noise
 ampVNoise = 0.3
-#amplitude of position noise
+# Amplitude of position noise
 ampPosNoise=1
 
 
@@ -23,92 +23,92 @@ ampPosNoise=1
 # Simulation Parameters # 
 #########################
 
-#number of fishes
+# Number of fishes
 N_Fish = 100
-#number of dimensions 2 or 3
+# Number of dimensions 2 or 3
 dimension=2
-#time step the resolution of time
+# Time step the resolution of time
 dt = 0.2
-#number of time steps
+# Number of time steps
 N_steps=1000
-#number of simulation runs, can be used to average measurements for the
+# Number of simulation runs, can be used to average measurements for the
 #current code there is no reason to set it higher than 1
 N_runs=1
-#number of times code is ran, this can be used to change variables for
-#each instance to generate statistic.
+# Number of times code is ran, this can be used to change variables for
+# Each instance to generate statistic.
 N_instances=100
 
 ###################
 # Fish Parameters #
 ###################
 
-#radius of attraction
+# Radius of attraction
 R_attraction = 150
-#radius of orientation
+# Radius of orientation
 R_orientation = 55
-# radius of repulsion
+# Radius of repulsion
 R_repulsion = 12
-#scalling for attraction
-attractWeight=1.4
-#scalling for repulsion
-repulseWeight=0.7
-# force for current direction
-selfWeight=1
-#scalling for orientation
-orientationWeight=2
-# fish lengths per second
-mean_v=1
-# max velocity 3 times mean_v
-max_v=3
- # variance in velocity
-var_v=1
+# Scaling for attraction
+attractWeight = 1.4
+# Scaling for repulsion
+repulseWeight= 0.7
+# Force for current direction
+selfWeight = 1
+# Scaling for orientation
+orientationWeight = 2
+# Fish lengths per second
+mean_v = 1
+# Max velocity 3 times mean_v
+max_v = 3
+ # Variance in velocity
+var_v = 1
 
 ###################
 # Sick Parameters #
 ###################
 
-#selfweights are different for certain individuals (sick ones)
+# Selfweights are different for certain individuals (sick ones)
 selfWeightOffIndivually=false
-#the number of fishes for which selfweight is ofset
-N_selfweightOff=100
-#amplitude that the self weight is multiplied by
-selfOffAm=10
+# The number of fishes for which selfweight is ofset
+N_selfweightOff = 100
+# Amplitude that the self weight is multiplied by
+selfOffAm = 10
 
 ############################
 # Visualization Parameters #
 ############################
 
-#the number of frames for blender and scatter animation that will be saved
-#number of frames
-N_frames=100
-#saves N_frames positions in dataForVisualization, only saves first run
-save_pos=true
-# create an scatter animation
-scatter_anim=false
+# The number of frames for blender and scatter animation that will be saved
+# Number of frames.
+N_frames = 100
+# Saves N_frames positions in dataForVisualization, only saves first run
+save_pos = true
+# Create an scatter animation
+scatter_anim = false
 
 ############################
 # Data Analysis Parameters #
 ############################
 
-#number of measurements the measurements are saved per Instance so if you want
-#many feature vectors then increase the number  of instances by increasing
-#N_instances
-N_measurements= 100
+# Number of measurements the measurements are saved per Instance so if you want
+# Many feature vectors then increase the number  of instances by increasing
+# N_instances
+N_measurements = 100
 
-#If this is set to true then for each instance a measure will be appended
-#to CSV dataforAanalysis where the first entry is class
-appendToDataForAnalysis= true
+# If this is set to true then for each instance a measure will be appended
+# to CSV dataforAanalysis where the first entry is class
+appendToDataForAnalysis = true
 
-#set your target value or class here, it will be assigned to all
-#saved data for analysis if you generate different sets of data for
-#classification it is very important that you change the target value
-class=0
+# Set your target value or class here, it will be assigned to all
+#s aved data for analysis if you generate different sets of data for
+# classification it is very important that you change the target value
+class = 0
 
-#different measurements only use one at a time
+# Different measurements only use one at a time
 
-#uses a measure that gives the average position of each time step, then
-#takes the sum of those positions and all their dimensions over all time
-#and returns that value
-avgPositionDimensionSum=false
-#uses measure that takes the average position
-avgPosition= true
+# Uses a measure that gives the average position of each time step, then
+# takes the sum of those positions and all their dimensions over all time
+# and returns that value
+avgPositionDimensionSum = false
+# Uses measure that takes the average position
+avgPosition = true
