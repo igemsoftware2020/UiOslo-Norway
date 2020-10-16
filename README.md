@@ -1,6 +1,4 @@
-
 ![Logo](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/master/Logo_with_title.png)
-
 # iGEM2020_UiOslo_Norway (sal.coli)
 Fish school model in julia where you can export data to a julia script for machine learning and to blender for visualization. The purpose of our project is to investigate if it is feasable to detect disease in individuals by using measures on collective behaviour. We have therefor implemented a simple discrete stochastic schooling model where we can change some parameters to create "sick" fish and analyse different measures with a nerual net. Our work is now contanied in three parts:
 
