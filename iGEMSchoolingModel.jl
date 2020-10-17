@@ -9,7 +9,7 @@ using CSV
 
 
 
-#returns a named touple of environment parameters
+#returns a named tuple of environment parameters
 function environmentParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
@@ -27,62 +27,62 @@ function environmentParameters()
     return Env_Para
 end
 
-#Returns a named touple of simulation parameters
+#Returns a named tuple of simulation parameters
 function simulationParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
     delimiter='='
 
     Sim_Para=(
-     #number of fishes
+    # number of fishes
     N_Fish = parse(Int,getParaFromFile(file,"N_Fish",avoidStr,delimiter)),
-    #number of dimensions
+    # number of dimensions
     dimension=parse(Int,getParaFromFile(file,"dimension",avoidStr,delimiter)),
     # time step
     dt = parse(Float64,getParaFromFile(file,"dt",avoidStr,delimiter)),
-    #number of time steps
+    # number of time steps
     N_steps=parse(Int,getParaFromFile(file,"N_steps",avoidStr,delimiter)),
-    #number of simulation runs, can be used to average measurements
+    # number of simulation runs, can be used to average measurements
     N_runs=parse(Int,getParaFromFile(file,"N_runs",avoidStr,delimiter)),
-    #number of times code is ran, this can be used to change variables for
-    #each instance to generate statistic.
+    # number of times code is ran, this can be used to change variables for
+    # each instance to generate statistic.
     N_instances=parse(Int,getParaFromFile(file,"N_instances",avoidStr,delimiter)),
     )
     return Sim_Para
 end
 
-#Returns a named touple of fish parameters
+#Returns a named tuple of fish parameters
 function fishParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
     delimiter='='
 
     Fish_Para=(
-    #radius of attraction
+    # radius of attraction
     R_attraction = parse(Float32,getParaFromFile(file,"R_attraction",avoidStr,delimiter)),
-    #radius of orientation
+    # radius of orientation
     R_orientation = parse(Float32,getParaFromFile(file,"R_orientation",avoidStr,delimiter)),
     # radius of repulsion
     R_repulsion = parse(Float32,getParaFromFile(file,"R_repulsion",avoidStr,delimiter)),
-    #scalling for attraction
+    # scaling for attraction
     attractWeight=parse(Float32,getParaFromFile(file,"attractWeight",avoidStr,delimiter)),
-    #scalling for repulsion
+    # scaling for repulsion
     repulseWeight=parse(Float32,getParaFromFile(file,"repulseWeight",avoidStr,delimiter)),
-    #force for current direction
+    # force for current direction
     selfWeight=parse(Float32,getParaFromFile(file,"selfWeight",avoidStr,delimiter)),
-    #scalling for orientation
+    # scaling for orientation
     orientationWeight=parse(Float32,getParaFromFile(file,"orientationWeight",avoidStr,delimiter)),
-    #fish lengths per second
+    # fish lengths per second
     mean_v=parse(Float32,getParaFromFile(file,"mean_v",avoidStr,delimiter)),
-    #max velocity 3 times mean_v
+    # max velocity 3 times mean_v
     max_v=parse(Float32,getParaFromFile(file,"max_v",avoidStr,delimiter)),
-    #variance in velocity
+    # variance in velocity
     var_v=parse(Float32,getParaFromFile(file,"var_v",avoidStr,delimiter)),
     )
     return Fish_Para
 end
 
-#Returns a named touple of sick paramters
+# Returns a named tuple of sick paramters
 function sickParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
@@ -90,41 +90,41 @@ function sickParameters()
 
 
     Sick_Para=(
-    #selfweights are different for certain individuals (sick ones)
+    # selfweights are different for certain individuals (sick ones)
     selfWeightOffIndivually=parse(Bool,getParaFromFile(file,"selfWeightOffIndivually",avoidStr,delimiter)),
-    #the number of fishes for which selfweight is ofset
+    # the number of fishes for which selfweight is ofset
     N_selfweightOff=parse(Int,getParaFromFile(file,"N_selfweightOff",avoidStr,delimiter)),
-    #amplitude that the self weight is multiplied by
+    # amplitude that the self weight is multiplied by
     selfOffAm=parse(Float32,getParaFromFile(file,"selfOffAm",avoidStr,delimiter)),
     )
     return Sick_Para
 end
 
-#Returns named touple of visualisation paramters
+# Returns named tuple of visualisation paramters
 function visualParamters()
     file = open("parametersForModel.txt")
     avoidStr="#"
     delimiter='='
 
     Vizual_Para=(
-    #the number of frames for blender and scatter animation that will be saved
-    #number of frames needs to be even
+    # the number of frames for blender and scatter animation that will be saved
+    # number of frames needs to be even
     N_frames=parse(Int,getParaFromFile(file,"N_frames",avoidStr,delimiter)),
-    #saves N_frames positions in dataForVisualization, only saves first run
+    # saves N_frames positions in dataForVisualization, only saves first run
     save_pos=parse(Bool,getParaFromFile(file,"save_pos",avoidStr,delimiter)),
     # create an scatter animation
     scatter_anim=parse(Bool,getParaFromFile(file,"scatter_anim",avoidStr,delimiter)),
     )
     return Vizual_Para
 end
-#Returns name touple of data analysis parameters
+# Returns name tuple of data analysis parameters
 function dataAnalysisParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
     delimiter='='
 
     DataAnalaysis_Para=(
-    #number of measurements
+    # Number of measurements
     N_measurements= parse(Int,getParaFromFile(file,"N_measurements",avoidStr,delimiter)),
 
     #if this is set to true then for each instance a measure will be appended
@@ -134,13 +134,13 @@ function dataAnalysisParameters()
     #saved data for analysis
     class=parse(Int,getParaFromFile(file,"class",avoidStr,delimiter)),
 
-    #different measurements only use one at a time
+    # different measurements only use one at a time
 
-    #uses a measure that gives the average position of each time step, then
-    #takes the sum of those positions and all their dimensions over all time
-    #and returns that value
+    # uses a measure that gives the average position of each time step, then
+    # takes the sum of those positions and all their dimensions over all time
+    # and returns that value
     avgPositionDimensionSum=parse(Bool,getParaFromFile(file,"avgPositionDimensionSum",avoidStr,delimiter)),
-    #uses measure that takes the average position
+    # uses measure that takes the average position
     avgPosition=parse(Bool,getParaFromFile(file,"avgPosition",avoidStr,delimiter)),
     )
 end
@@ -240,7 +240,7 @@ Input:
 2. j, Integer, which fish we are looking at
 3. inAttZone, array of integers, indicies of fishes in attraction zone
 4. attWeight, float
-5. Sim_Para, named touple of simulation parameters
+5. Sim_Para, named tuple of simulation parameters
 Output:
 1. attDir, array of float, attraction direction
 =#
@@ -269,7 +269,7 @@ Input:
 2. j, Integer, which fish we are looking at
 3. inRepZone, array of integers, indicies of fishes in repulsion zone
 4. repWeight, float
-5. Sim_Para, named touple of simulation parameters
+5. Sim_Para, named tuple of simulation parameters
 Output:
 1. repDir, array of float, repulsion direction
 =#
@@ -298,7 +298,7 @@ Input:
 3. inOriZone, array of integers, indicies of fishes in orientation zone
 4. oriWeight, float
 5. abs_v, float, absolute velocity
-6. Sim_Para, named touple of simulation parameters
+6. Sim_Para, named tuple of simulation parameters
 Output:
 1. oriDir, array of float, orientation direction
 =#
