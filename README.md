@@ -42,7 +42,7 @@ This model is an extension to 3 dimensions of "Simulating The Collective Behavio
 After installation of software and packages simply download the Julia file iGEMSchoolingModel.jl and parametersForModel.txt and put them in the same folder. Then open iGEMSchoolingModel.jl with your Julia editor and hit "run all". You can play around with the schooling model by changing parameters in parametersForModel without needing to touch the code itself. Depending on your choices with the parameters it will generate data for analysis and animations + a simple scatter animation 
 
 # Extending the modeling code 
-We have done our best to make the code easily extendable. To add a new model or parts of a model, we advice you to read which functions are already implemented. Then implement some new functions and call them from the most inner loop with an if statement. Then add the parameters required for these new functions to the parametersForModel.txt and import them as seen in the code.
+We have done our best to make the code easily extendable. To add a new model or parts of a model, we advise you to read which functions are already implemented. Then implement some new functions and call them from the most inner loop with an if statement. Then add the parameters required for these new functions to the parametersForModel.txt and import them as seen in the code.
 
 # Data analysis 
 As described the schooling model outputs a file called dataforAnalysis.CSV. The data contained in this file is the basis for training and testing our classifier. To run the code simply download iGEMDataAnalysis.jl and open it in your editor and hit run. It will output results into the terminal automatically.
