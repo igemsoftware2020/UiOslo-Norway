@@ -60,7 +60,7 @@ orientationWeight = 2
 mean_v = 1
 # Max velocity 3 times mean_v
 max_v = 3
- # Variance in velocity
+# Variance in velocity
 var_v = 1
 
 ###################
@@ -100,7 +100,7 @@ N_measurements = 100
 appendToDataForAnalysis = true
 
 # Set your target value or class here, it will be assigned to all
-#s aved data for analysis if you generate different sets of data for
+# saved data for analysis if you generate different sets of data for
 # classification it is very important that you change the target value
 class = 0
 
