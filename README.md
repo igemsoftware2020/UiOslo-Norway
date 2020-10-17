@@ -89,7 +89,10 @@ iGEMSchoolingModel.jl by default outputs data for 100 objects. By changing the i
     
 
 
-
+Authors
+======
+https://github.com/JonasGronbakken
+https://github.com/meidelien
     
 
 
