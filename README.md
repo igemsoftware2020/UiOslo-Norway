@@ -91,7 +91,11 @@ iGEMSchoolingModel.jl by default outputs data for 100 objects. By changing the i
 
 Authors
 ======
-https://github.com/JonasGronbakken
+Jonas Grønbakken, Unviersity of Oslo 
+
+- https://github.com/JonasGronbakken
+
+- https://orcid.org/0000-0003-0549-0494
 
 Martin Eide Lien, Norwegian University of Science and Technology
 - https://github.com/meidelien
