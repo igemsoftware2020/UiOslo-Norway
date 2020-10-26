@@ -34,7 +34,7 @@ function simulationParameters()
     delimiter='='
 
     Sim_Para=(
-    # number of fishes
+     #number of fishes
     N_Fish = parse(Int,getParaFromFile(file,"N_Fish",avoidStr,delimiter)),
     # number of dimensions
     dimension=parse(Int,getParaFromFile(file,"dimension",avoidStr,delimiter)),
@@ -45,7 +45,7 @@ function simulationParameters()
     # number of simulation runs, can be used to average measurements
     N_runs=parse(Int,getParaFromFile(file,"N_runs",avoidStr,delimiter)),
     # number of times code is ran, this can be used to change variables for
-    # each instance to generate statistic.
+    #each instance to generate statistic.
     N_instances=parse(Int,getParaFromFile(file,"N_instances",avoidStr,delimiter)),
     )
     return Sim_Para
@@ -64,13 +64,13 @@ function fishParameters()
     R_orientation = parse(Float32,getParaFromFile(file,"R_orientation",avoidStr,delimiter)),
     # radius of repulsion
     R_repulsion = parse(Float32,getParaFromFile(file,"R_repulsion",avoidStr,delimiter)),
-    # scaling for attraction
+    # scalling for attraction
     attractWeight=parse(Float32,getParaFromFile(file,"attractWeight",avoidStr,delimiter)),
-    # scaling for repulsion
+    # scalling for repulsion
     repulseWeight=parse(Float32,getParaFromFile(file,"repulseWeight",avoidStr,delimiter)),
     # force for current direction
     selfWeight=parse(Float32,getParaFromFile(file,"selfWeight",avoidStr,delimiter)),
-    # scaling for orientation
+    # scalling for orientation
     orientationWeight=parse(Float32,getParaFromFile(file,"orientationWeight",avoidStr,delimiter)),
     # fish lengths per second
     mean_v=parse(Float32,getParaFromFile(file,"mean_v",avoidStr,delimiter)),
@@ -82,7 +82,7 @@ function fishParameters()
     return Fish_Para
 end
 
-# Returns a named tuple of sick paramters
+#Returns a named tuple of sick paramters
 function sickParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
@@ -100,48 +100,56 @@ function sickParameters()
     return Sick_Para
 end
 
-# Returns named tuple of visualisation paramters
+#Returns named tuple of visualisation paramters
 function visualParamters()
     file = open("parametersForModel.txt")
     avoidStr="#"
     delimiter='='
 
     Vizual_Para=(
-    # the number of frames for blender and scatter animation that will be saved
-    # number of frames needs to be even
+    #the number of frames for blender and scatter animation that will be saved
+    #number of frames needs to be even
     N_frames=parse(Int,getParaFromFile(file,"N_frames",avoidStr,delimiter)),
-    # saves N_frames positions in dataForVisualization, only saves first run
+    #saves N_frames positions in dataForVisualization, only saves first run
     save_pos=parse(Bool,getParaFromFile(file,"save_pos",avoidStr,delimiter)),
     # create an scatter animation
     scatter_anim=parse(Bool,getParaFromFile(file,"scatter_anim",avoidStr,delimiter)),
     )
     return Vizual_Para
 end
-# Returns name tuple of data analysis parameters
+#Returns name tuple of data analysis parameters
 function dataAnalysisParameters()
     file = open("parametersForModel.txt")
     avoidStr="#"
     delimiter='='
 
     DataAnalaysis_Para=(
-    # Number of measurements
+    # number of measurements
     N_measurements= parse(Int,getParaFromFile(file,"N_measurements",avoidStr,delimiter)),
 
-    #if this is set to true then for each instance a measure will be appended
+    # if this is set to true then for each instance a measure will be appended
     #to CSV dataforAanalysis where the first entry is class
     appendToDataForAnalysis=parse(Bool,getParaFromFile(file,"appendToDataForAnalysis",avoidStr,delimiter)),
-    #set your target value or class here, it will be assigned to all
-    #saved data for analysis
+    # set your target value or class here, it will be assigned to all
+    # saved data for analysis
     class=parse(Int,getParaFromFile(file,"class",avoidStr,delimiter)),
+
+    # Start measuring at this percentage of N_steps
+    measure_Start=parse(Float32,getParaFromFile(file,"measure_Start",avoidStr,delimiter)),
+
+    # Stop measuring at this percentage of N_steps
+    measure_Stop=parse(Float32,getParaFromFile(file,"measure_Stop",avoidStr,delimiter)),
+
 
     # different measurements only use one at a time
 
     # uses a measure that gives the average position of each time step, then
-    # takes the sum of those positions and all their dimensions over all time
-    # and returns that value
+    #takes the sum of those positions and all their dimensions over all time
+    #and returns that value
     avgPositionDimensionSum=parse(Bool,getParaFromFile(file,"avgPositionDimensionSum",avoidStr,delimiter)),
     # uses measure that takes the average position
     avgPosition=parse(Bool,getParaFromFile(file,"avgPosition",avoidStr,delimiter)),
+
     )
 end
 
@@ -530,7 +538,7 @@ function animScatterFromVec(Env_Para,Data,Vizual_Para)
     #scatter plot
     scat= plt.scatter(Data[1][:,1], Data[1][:,2])
     #create function animation object
-    myanim = anim.FuncAnimation(fig, animUpdate, frames=100, interval=100)
+    myanim = anim.FuncAnimation(fig, animUpdate, frames=Vizual_Para[:N_frames], interval=100)
     #save animation where code is located
     myanim[:save]("test1.mp4", bitrate=-1, extra_args=["-vcodec", "libx264",
                   "-pix_fmt", "yuv420p"])
@@ -592,7 +600,7 @@ function updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,
 
     end
 
-    return V
+    return V[j,:]
 
 end
 #=
@@ -695,22 +703,27 @@ function avgPos(Pos)
 end
 
 #=
-Returns an array of indicies that we want samples when we want N_samples
-samples from a set with N_set entries
+Returns an array of indicies that we want sample when we want N_samples
+samples from a set with N_set entries between measure_Start*N_set and
+measure_Stop*N_set.
 Input:
 1. N_set, Integer
 2. N_samples, Integer
+3. measure_Start, Float
+4. measure_Stop, Float
 Output:
 1. ind, array of integers
 =#
-function getIndicesToSample(N_set,N_samples)
+function getIndicesToSample(N_set,N_samples,measure_Start,measure_Stop)
     #initialization
     ind=[]
     for i in 1:N_set
+        #interval
+        interval=measure_Stop-measure_Start
         #next index we want to sample
-        next_ind=Int(ceil(i*(N_set/N_samples)))
+        next_ind=Int(ceil(measure_Start+i*((N_set*interval)/N_samples)))
         #if that in index is in the set then append to array
-        if next_ind<=N_set
+        if next_ind<=Int(ceil(measure_Stop*N_set))
             append!(ind,next_ind)
         end
     end
@@ -782,11 +795,14 @@ let
             V=V_init
 
             #sample indicies for visualisation
-            vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames])
+            vis_indicies=getIndicesToSample(Sim_Para[:N_steps],Vizual_Para[:N_frames],0,1)
             #counter to know which index of vis_indicies that we are looking for
             count_vis_ind=1
             #sample indicies for datanalysis
-            ana_indicies=getIndicesToSample(Sim_Para[:N_steps],DataAnalysis_Para[:N_measurements])
+            ana_indicies=getIndicesToSample(Sim_Para[:N_steps],
+                DataAnalysis_Para[:N_measurements],
+                DataAnalysis_Para[:measure_Start],
+                DataAnalysis_Para[:measure_Stop])
             #counter to know which index of ana_indicies that we are looking for
             count_ana_ind=1
 
@@ -801,9 +817,13 @@ let
                 V=velAdjustedForLimit(Fish_Para,Sim_Para,V)
 
                 #for each fish
-                for j in 1:Sim_Para[:N_Fish]
+                #this loop is multi threaded, be carefull when implementing new
+                #functions or models, there is always the danger of a data race
+                #if you want to remove the multi threading simply remove
+                # "Threads.@threads"
+                Threads.@threads for j in 1:Sim_Para[:N_Fish]
                     #update direction
-                    V=updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,attWeight)
+                    V[j,:]=updateDirSumAll(V,Fish_Para,P,j,Sim_Para,selfW,repWeight,oriWeight,attWeight)
 
                 end
 

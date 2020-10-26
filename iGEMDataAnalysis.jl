@@ -2,7 +2,7 @@ using Flux
 using CSV
 using DataFrames
 using Random
-
+using BSON: @save
 
 #Counts number of lines in the cvs, this is the number of feature vectors
 #Input: data, a CSV file
@@ -31,16 +31,19 @@ function getNrFeatures(data)
     return n-1
 end
 
-#Normalize data such that all elements are on [0,1]
+#Normalize data such that all elements are on [0,1] for each feature
 #Input: data, a multidimensional array
 #Output: data, a multidimensional array
 function minMaxNormalization(data)
-    #find max
-    max=maximum(data)
-    #find min
-    min=minimum(data)
-    #scale all elements
-    data=(data.-min)/(max-min)
+    #for each colmn in data
+    for i in 1:size(data)[2]
+        #find max in column
+        max=maximum(data[:,i])
+        #find min in column
+        min=minimum(data[:,i])
+        #scale column
+        data[:,i]=(data[:,i].-min)/(max-min)
+    end
     #return scaled data
     return data
 end
@@ -124,6 +127,8 @@ end
 
 #Main script
 let
+    #saves the neural net (Flux model) as bson file if set true
+    savemodel=true
     #Imports CSV file, each line contains a target value of 0 or 1 followed by
     #a feature vector
     data=CSV.File("dataforAnalysis.CSV",header=false)
@@ -163,8 +168,10 @@ let
     Ys=convert(Array{Float32},Ys)
 
     #Create nerual net model, example: Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
-    #has N feature inputs, with two length 20 hidden nodes and one output
-    model=Flux.Chain(Dense(N_feat,20,σ),Dense(20,1))
+    #has N feature inputs, with one hidde layer that has 20 nodes and one
+    #output layer with one node
+    model=Flux.Chain(Dense(N_feat,40,σ),Dense(40,30),Dense(30,15),Dense(15,10),Dense(10,5),Dense(5,1))
+
     #Create our loss function, mse = mean square error
     L(x,y)=Flux.Losses.mse(model(x), y)
     #model parameters
@@ -173,8 +180,7 @@ let
     η=0.001
     #The optimizer, decides how we change our parameters to minimize loss
     #Use classic gradient decent
-    opt = Flux.Descent(η)
-
+    opt = ADAM(η, (0.9, 0.999))
     #Combine feature vector and target into a vector of touples
     D=Vector(undef,N_vec)
     for i in 1:N_vec
@@ -187,7 +193,7 @@ let
     D_test,D_train=splitDataTraningAndTest(train_percentage,D)
 
     #Number of traning steps
-    echos=500
+    echos=1000
     for e in 1:echos
         #train our model (update weights)
         Flux.train!(L,par,D_train,opt)
@@ -200,5 +206,10 @@ let
     #print results
     println("Accuracy: ",acc,"  ","Positive: ",eval[1],"  ","Negative: ",
     eval[2],"  ","False positive: ",eval[3],"  ","False negative: ",eval[4])
+
+    #save model as "FluxModel.bson" in project directory
+    if savemodel
+        @save "FluxModel.bson" model
+    end
 
 end

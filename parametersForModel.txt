@@ -4,10 +4,13 @@
 #3. all parameters must be on the form x=5, with an equality sign
 #4. parameter names are sensitive, do not change them
 #5. booleans are represented as true or false, for example bol=true
+#6. Parameters must be in the same order in this document as they are in the
+    #code for each tuple. The parametersForModel.txt is only iterated once per
+    #tuple.
 
-##########################
+##################
 # Environment Parameters #
-##########################
+##################
 
 # Length of each side of cubic/square tank
 L=1000
@@ -19,96 +22,108 @@ ampVNoise = 0.3
 ampPosNoise=1
 
 
-#########################
-# Simulation Parameters # 
-#########################
+##########################
+# Simulation Parameters #
+##########################
 
 # Number of fishes
 N_Fish = 100
 # Number of dimensions 2 or 3
-dimension=2
+dimension=3
 # Time step the resolution of time
-dt = 0.2
+dt = 0.3
 # Number of time steps
-N_steps=1000
+N_steps=2000
 # Number of simulation runs, can be used to average measurements for the
-#current code there is no reason to set it higher than 1
+# current code there is no reason to set it higher than 1
 N_runs=1
 # Number of times code is ran, this can be used to change variables for
-# Each instance to generate statistic.
-N_instances=100
+# Each instance to generate statistic.Each instance one feature vector is made
+# So there will be N_instances feature vectors appended to dataforAnalysis.CSV
+N_instances=1
 
-###################
+###############
 # Fish Parameters #
-###################
+###############
 
 # Radius of attraction
 R_attraction = 150
 # Radius of orientation
-R_orientation = 55
+R_orientation = 45
 # Radius of repulsion
-R_repulsion = 12
+R_repulsion = 14
 # Scaling for attraction
-attractWeight = 1.4
+attractWeight=1.4
 # Scaling for repulsion
-repulseWeight= 0.7
+repulseWeight=0.7
 # Force for current direction
-selfWeight = 1
+selfWeight=1
 # Scaling for orientation
-orientationWeight = 2
-# Fish lengths per second
-mean_v = 1
+orientationWeight=2
+# Mean velocity
+mean_v=1
 # Max velocity 3 times mean_v
-max_v = 3
-# Variance in velocity
-var_v = 1
+max_v=3
+# Variance of velocity
+var_v=1
 
-###################
+###############################
 # Sick Parameters #
-###################
+###############################
 
 # Selfweights are different for certain individuals (sick ones)
 selfWeightOffIndivually=false
 # The number of fishes for which selfweight is ofset
-N_selfweightOff = 100
+N_selfweightOff=100
 # Amplitude that the self weight is multiplied by
-selfOffAm = 10
+selfOffAm=3
 
-############################
+###############################
 # Visualization Parameters #
-############################
+###############################
 
 # The number of frames for blender and scatter animation that will be saved
 # Number of frames.
-N_frames = 100
+N_frames=100
 # Saves N_frames positions in dataForVisualization, only saves first run
-save_pos = true
-# Create an scatter animation
-scatter_anim = false
+save_pos=true
+# Create a scatter animation
+scatter_anim=true
 
-############################
+###############################
 # Data Analysis Parameters #
-############################
+###############################
 
 # Number of measurements the measurements are saved per Instance so if you want
 # Many feature vectors then increase the number  of instances by increasing
 # N_instances
-N_measurements = 100
+N_measurements=50
+
+
+
 
 # If this is set to true then for each instance a measure will be appended
 # to CSV dataforAanalysis where the first entry is class
-appendToDataForAnalysis = true
+appendToDataForAnalysis=true
+
 
 # Set your target value or class here, it will be assigned to all
 # saved data for analysis if you generate different sets of data for
 # classification it is very important that you change the target value
-class = 0
+class=0
+
+# Start measure at some percentage of N_steps
+measure_Start=0
+
+# Stop measuring at some percentage of N_steps
+measure_Stop=1
 
 # Different measurements only use one at a time
 
 # Uses a measure that gives the average position of each time step, then
 # takes the sum of those positions and all their dimensions over all time
 # and returns that value
-avgPositionDimensionSum = false
+avgPositionDimensionSum=true
+
 # Uses measure that takes the average position
-avgPosition = true
+avgPosition=false
