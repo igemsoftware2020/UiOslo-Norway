@@ -83,16 +83,21 @@ with open(csv_loc, 'r', newline='') as csvfile:
         # Initialize array to hold coordinates
         coordinates=[]
         
-        # For N_obj append positional values for each agent to the coordinate array
-        for i in range(N_obj):
-            # Ff dimension equals 2 then set z=0
-            if dim==2:
-                temp_pos=[fpos[i-1]/scale,fpos[i]/scale,0]
+        # For dim*N_obj append positional values for each agent to the coordinate array
+        if dim==3:
+            i=0
+            while (i<(3*N_obj-2)): 
+                temp_pos=[fpos[i]/scale,fpos[i+1]/scale,fpos[i+2]/scale]
                 coordinates.append(temp_pos)
-                       
-            if dim==3:
-                temp_pos=[fpos[i-1]/scale,fpos[i]/scale,fpos[i+1]/scale]
+                i=i+3
+                
+        #if dimension equals 2 then set z=0
+        if dim==2:
+            i=0
+            while (i<(3*N_obj-1)):  
+                temp_pos=[fpos[i]/scale,fpos[i+1]/scale,0]
                 coordinates.append(temp_pos)
+                i=i+2
         
         # Set frame
         bpy.context.scene.frame_set(frame_num)
