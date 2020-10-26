@@ -34,7 +34,7 @@ FFMPEG can be found here https://ffmpeg.org/download.html. You can either instal
 
 # Schooling model 
 Description of the discrete stochastic schooling model that is currently implemented. 
-![Model description](https://github.com/iGEMOslo/iGEM2020_UiOslo_Norway/blob/Parameters-in-separate-text-file/SimpleDiscreteStochasticSchoolingModel.png)
+![Model description](https://github.com/igemsoftware2020/UiOslo-Norway/blob/master/DescriptionDiscreteStochasticSchoolingModel.png)
 This model is an extension to 3 dimensions of "Simulating The Collective Behavior of Schooling Fish With A Discrete Stochastic Model" by Alethea Barbaro , Bjorn Birnir, Kirk Taylor (2006).
 
 # Running the model
