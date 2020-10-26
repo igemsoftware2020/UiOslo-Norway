@@ -45,7 +45,7 @@ After installation of software and packages simply download the Julia file iGEMS
 We have done our best to make the code easily extendable. To add a new model or parts of a model, we advise you to read which functions are already implemented. Then implement some new functions and call them from the most inner loop with an if statement. Then add the parameters required for these new functions to the parametersForModel.txt and import them as seen in the code.
 
 # Data analysis 
-As described the schooling model outputs a file called dataforAnalysis.CSV. The data contained in this file is the basis for training and testing our classifier. To run the code simply download iGEMDataAnalysis.jl and open it in your editor and hit run. It will output results into the terminal automatically.
+As described the schooling model outputs a file called dataforAnalysis.CSV. The data contained in this file is the basis for training and testing our classifier. To run the code simply download iGEMDataAnalysis.jl and open it in your editor and hit run. It will output results into the terminal automatically. The file dataforAnalysis has each time series as a row, the first entry will be the class as defined in parametersforModel.txt. If you want to classify a set of data you need to run the model at least twice with two different classes, since as of now the analysis code only implements binary classification, two classes is the maximum. The target values should be c_1<=0.5 for one class and c_2>0.5 for the other.
 
 
 # Blender: Vizualization
